@@ -1,1 +1,1 @@
-# CSD-Workshop-for-Proframming-in-R
+# CSD-Workshop-for-Programming-in-R
