@@ -26,6 +26,7 @@ library(kableExtra)
 library(knitr)
 library(countdown)
 library(here)
+library(icons)
 ```
 
 layout: true
@@ -145,4 +146,545 @@ A tool to access R and produce various kinds of outputs such as analysis reports
 ???
 
 explain what a,b,c,d. Demonstrate use.
+
+show how to create a project
+show how to run a command
+show how to create a new file
+show how to save a new file
+
+---
+
+class: left,middle
+
+# Basic Arithmetic
+
+```{r}
+2+2
+```
+
+```{r}
+2*2
+```
+
+```{r}
+2/2
+```
+
+---
+
+class: left, center
+
+background-image: url(figs/your-turn.jpg)
+background-size: cover
+
+.left-column[
+# `r icon_style(icons::fontawesome("keyboard"),scale = 3)` Your Turn
+]
+
+.right-column[
+.left[
+  
+   Take last digit of your mobile number<br><br><br>
+   Multiply it by 2<br><br><br>
+   Add 5 with the above answer<br><br><br>
+   Multiply the answer with 50<br><br><br>
+   Add 1770 with the answer<br><br><br>
+   Subtract the your birth year from the result in part 5 (example 1985, 1973, etc.)<br><br><br>
+   
+.big[Did you receive a three digit answer?<br> Is the first digit same as the last digit of your mobile number, are the last two digits of the number you computed your age?]   
+  ]
+
+.tiny[baclground: Photo by Elena Saharova from Pexels]
+]
+
+```{r, echo=FALSE}
+countdown(minutes = 2,play_sound = TRUE,top = 0)
+```
+
+
+---
+
+class: left, middle
+
+# Conditional Statements
+
+```{r}
+1 > 2
+```
+
+```{r}
+"Ayush" == "Moron"
+```
+
+```{r}
+1+1 < 2-5
+```
+
+---
+class: left, middle
+
+# The Missing Detour
+.small[_I know,the slide title is meta and a paradox_]
+
+Missing values in R are represented by __NA__
+
+```{r}
+NA + 1
+```
+
+```{r}
+NA + NA
+```
+
+
+```{r}
+2 > NA
+```
+
+```{r}
+is.na("Ayush")
+```
+
+---
+
+
+class: left, center
+
+background-image: url(figs/your-turn.jpg)
+background-size: cover
+
+.left-column[
+# `r icon_style(icons::fontawesome("question"),scale = 3)` Your Turn - KBC
+
+"देवियो और सज्जनो , मै अमिताभ बच्चन बोल राहा हू..."
+]
+
+.right-column[
+.left[
+
+   
+.big[What do you think the following code will generate as output?]
+
+<br>
+.center[
+```
+NA == NA
+```
+]
+<br><br><br>
+
+.left[__A) Error__] .right[__B) NA__] <br><br>
+
+.left[__C) TRUE__] .right[__D) FALSE__]
+
+  ]
+
+.tiny[baclground: Photo by Elena Saharova from Pexels]
+]
+
+```{r, echo=FALSE}
+countdown(minutes = 2,play_sound = TRUE,bottom = 0)
+```
+
+---
+class: left, middle
+
+# What is an Object?
+
+.big[
+__"R lets you save data by storing it inside an R object. What is an object? Just a name that you can use to call up stored data. For example, you can save data into an object like a or b. Wherever R encounters the object, it will replace it with the data saved inside"__
+]
+-- _Hands-On Programming with R_
+
+## Why to use objects?
+
+These have names, can be called easily from memnory of the computer.<br>
+Easy to perform long sequences of computations.<br>
+You can store information in objects.<br>
+
+---
+
+class: left, middle
+
+# An Illustration of using objects
+
+Assume you want to generate  100 number from a normal distribution and save it. This is how one can do it:
+
+```{r}
+numbers_norm <- rnorm(n = 100,mean = 2.5,sd = 5)
+
+```
+
+.yscroll[
+```{r}
+numbers_norm
+```
+
+]
+
+---
+class: left, middle
+
+# Different kinds of Objects
+
+.big[
+
+We will focus on the following three kind:
+
+  * Vectors <br><br>
+  * Data frames <br><br>
+  * Functions <br><br>
+
+]
+
+While there are many other kinds of objects like _lists_, it is not possible to cover in the time we have.
+---
+
+class: left, middle
+
+# Vectors
+
+```{r}
+name <- "Ayush"
+```
+
+```{r}
+age <- 27
+```
+
+notice the use of `c()`
+
+```{r}
+age_participnats <- c(25,45,23,26,29,30,25,24)
+```
+
+```{r}
+names_participants <- c("Yoda", "Obi van", "Darth Vader", "Shaktiman", "Liea")
+```
+
+```{r}
+is.vector(age_participnats)
+```
+
+use the `is.vector()` function with the objects age, name and age_participants. __What can you say about all these objects?__
+
+
+???
+
+discuss the character and numeric vectors. discuss the length of vectors.
+---
+class: left, middle
+
+# Data Frames
+
+.left-column[
+<img src = "https://allisonhorst.github.io/palmerpenguins/reference/figures/lter_penguins.png" width = "200px"><br><br>
+
+<img src = "https://allisonhorst.github.io/palmerpenguins/reference/figures/culmen_depth.png" width = "200px">
+
+.small[
+The art and the data is by [Allison Horst](https://www.allisonhorst.com/)
+]
+
+]
+
+.right-column[
+```{r echo=FALSE}
+penguins %>%
+knitr::kable()%>%
+kableExtra::kable_styling()%>%
+scroll_box(width = "100%", height = "400px")
+```
+
+]
+???
+discuss different type of column values.
+---
+
+class: left, middle
+
+# Funcitons
+
+Functions are objects that can be used as a power packed sequence of commands one wants to execute.
+
+```{r}
+mean(age_participnats)
+```
+
+```{r}
+is.na(names_participants)
+```
+
+```{r}
+names(penguins)
+```
+
+```{r}
+length(age_participnats)
+```
+???
+show getAnywhere("mean.default")
+---
+
+class: left,middle
+
+# Accessing and subseting specific elements
+
+.yscroll[
+The first three elements of the objects `age_participants`
+
+```{r}
+age_participnats
+age_participnats[c(1,2,3)]
+```
+
+Only those participants that are younger than 33 years
+
+```{r}
+age_participnats[age_participnats<33]
+```
+
+All elements of the `age_participants` other than the 5th and 7th
+
+```{r}
+age_participnats[-c(5,7)]
+
+age_participnats[!c(5,7)]
+```
+
+
+]
+---
+
+class: left, middle
+
+# Accessing and subseting specific elements
+
+We recently saw the _penguins_ data.
+
+.yscroll[
+First five rows and the last two columns
+```{r}
+penguins[c(1:5),c(7,8)]
+```
+
+Seventh row and all columns
+
+```{r}
+penguins[7,]
+```
+]
+
+---
+
+class: left, middle
+
+# Accessing and Subseting specific elements
+
+.yscroll[
+
+Only the body mass column
+
+```{r}
+penguins$body_mass_g
+```
+
+
+]
+---
+
+class: left, middle
+
+# Accessing and Subseting specific elements
+
+.yscroll[
+Only those observations with mass more than 4000, all columns
+
+```{r}
+penguins[penguins$body_mass_g > 4000, ]
+```
+
+]
+
+---
+
+class: left, middle
+
+# Operations on vectors
+
+Add 1 to age of every participant
+
+```{r}
+age_participnats + 1
+```
+
+Check which participants are yonger that 25
+
+```{r}
+age_participnats < 25
+```
+
+See if there are any missing values in the object `age_participants`
+
+```{r}
+is.na(age_participnats)
+```
+
+---
+
+class: left, middle
+
+# Operations on vectors
+
+Average age of participants
+
+```{r}
+mean(age_participnats)
+```
+
+What is the median mass of the penguins?
+
+```{r}
+median(penguins$body_mass_g)
+```
+
+!! Any guess as to why the Answer is `NA`??
+
+Sum of all the participant age
+
+```{r}
+sum(age_participnats)
+```
+
+---
+
+
+class: left, middle
+
+# Operations on vectors
+
+total number of missing values in flipper length
+
+```{r}
+sum(is.na(penguins$flipper_length_mm))
+```
+
+What are the different islands in the penguins data?
+
+```{r}
+unique(penguins$island)
+```
+
+A cross tab between species and islands for the penguins
+
+```{r}
+table(penguins$species, penguins$island, useNA = "ifany")
+```
+---
+
+
+class: left, center
+
+background-image: url(figs/your-turn.jpg)
+background-size: cover
+
+.left-column[
+# `r icon_style(icons::fontawesome("keyboard"),scale = 3)` Your Turn
+]
+
+.right-column[
+.left[
+.big[
+1. Use the function `max()` to find the fluffiest penguin (highest body mass). Store this value in an Object and name it `fluffiest_penguin`.
+
+2. Find out the average bill depth of penguins. Use the function `mean()`. Create an object to store this value.
+
+3. Subset only those penguins that have bill depth more than the average bill depth, keep all columns. Name this data set `penguins_bill_depth_high` and create another object.
+
+4. Subset only those penguins that are from the Gentoo Species. Store this object and name it `penguins_gentoo`
+]
+
+.tiny[background: Photo by Elena Saharova from Pexels]
+]
+]
+
+```{r, echo=FALSE}
+countdown(minutes = 7,play_sound = TRUE,bottom = 0)
+```
+
+---
+class: left, middle,
+
+# Importing data from excel
+
+First, download [this data]() and save it in your project folder.
+
+.yscroll[
+```{r}
+read.csv("table.csv")
+```
+
+
+```{r}
+rbi_governor_data <- read.csv("table.csv")
+```
+]
+---
+class: left, middle
+
+# Exporting data to excel
+
+Export the Object `penguins_gentoo` to excel.
+
+
+```{r}
+# Since I did not do the exercise with everyone, I have to do some of it now
+
+penguins[penguins$species == "Gentoo",] -> penguins_gentoo
+  
+# Yes, the assignment operator works both ways
+```
+
+```{r}
+write.csv(penguins_gentoo, "File from R - Gentoo Penguins.csv")
+```
+
+---
+
+class: left, center
+
+background-image: url(figs/your-turn.jpg)
+background-size: cover
+
+.left-column[
+# `r icon_style(icons::fontawesome("keyboard"),scale = 3)` Your Turn
+]
+
+.right-column[
+.left[
+.big[
+
+Save the Object, `penguins_bill_depth_high`, that you created in the previous as a .csv file. Name the file "file from R - penguins with high bill depth.csv".
+
+]
+
+.tiny[background: Photo by Elena Saharova from Pexels]
+]
+]
+
+```{r, echo=FALSE}
+countdown(minutes = 2,play_sound = TRUE,bottom = 0)
+```
+---
+class: inverse,center, middle
+
+background-image: url(figs/thank-you.jpg)
+background-size: cover
+
+# Thank You
+
+<br><br>
+.big[Feedback is welcome at: _ayush.ap58@gmail.com_]
+
+.tiny[Photo by David Sun from Pexels]
 ---
