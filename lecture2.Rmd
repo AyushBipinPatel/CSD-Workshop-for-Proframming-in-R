@@ -98,9 +98,11 @@ You know __how to write conditional statements in R.__
 <br>
 <br>
 <br>
-
+--
 You know __how to access desired elements from a vector or a data frame.__
-
+<br>
+<br>
+<br>
 ---
 
 class: left, middle
