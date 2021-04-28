@@ -9,7 +9,7 @@ This module contains 6 lectures, duration of each lecture is 1.5 hours. The aim 
 Following are the lectures, in given sequence:
 
   * Lecture 1 on 26/04/2021: __Introduction to R__. [Link to slides](/lecture1.html)
-  * Lecture 2 on 28/04/2021: __Data Wrangling__. [Link to slides](/)
+  * Lecture 2 on 28/04/2021: __Data Wrangling__. [Link to slides](/lecture2.html)
   * Lecture 3 on 30/04/2021: __Basics of Data Visualization__. [Link to slides](/)
   * Lecture 4 on 03/05/2021: __Creating Maps(Choropleths) in R__. [Link to slides](/)
   * Lecture 5 on 05/05/2021: __How to: Hypothesis testing and Linear Regression in R__. [Link to slides](/)

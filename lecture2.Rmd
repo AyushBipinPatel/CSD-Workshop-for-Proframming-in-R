@@ -1,0 +1,686 @@
+---
+title: "Introduction to Data Wrangling using {dplyr}"
+subtitle: "Lecture 2"
+author: "Ayush Patel"
+institute: "Part of the CSD workshop on research methodology"
+date: "`r Sys.Date()`"
+output:
+  xaringan::moon_reader:
+    css: ["default","theme.css"]
+    lib_dir: libs
+    nature:
+      ratio: 16:9
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+    seal: false
+---
+
+```{r setup,include=FALSE}
+options(htmltools.dir.version = FALSE)
+knitr::opts_chunk$set(cache = TRUE, warning = FALSE, message = FALSE, dpi = 180)
+library(tidyverse)
+library(palmerpenguins)
+library(flair)
+library(kableExtra)
+library(knitr)
+library(countdown)
+library(here)
+library(icons)
+library(flipbookr)
+```
+
+layout: true
+---
+
+class: inverse, center, middle
+
+background-image: url(figs/title_backdrop.jpg)
+background-size: cover
+
+
+# Introduction to Data Wrangling using
+
+<img src="https://raw.githubusercontent.com/rstudio/hex-stickers/master/thumbs/dbplyr.png" width="150px"/>
+
+### Lecture 2
+
+.large[Ayush Patel]
+<br>
+Part of the CSD workshop on research methodology<br>
+`r Sys.Date()`
+<br><br>
+
+.tiny[dplyr logo from rstudio hex sticker git page]
+---
+name: Introduction
+
+class: left,middle
+
+
+## Find me 
+
+[__@ayushbipinpatel__](https://twitter.com/ayushbipinpatel) <img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/Pg0KPCEtLSBHZW5lcmF0b3I6IEFkb2JlIElsbHVzdHJhdG9yIDE5LjAuMCwgU1ZHIEV4cG9ydCBQbHVnLUluIC4gU1ZHIFZlcnNpb246IDYuMDAgQnVpbGQgMCkgIC0tPg0KPHN2ZyB2ZXJzaW9uPSIxLjEiIGlkPSJDYXBhXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4Ig0KCSB2aWV3Qm94PSIwIDAgNTEyIDUxMiIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAwIDAgNTEyIDUxMjsiIHhtbDpzcGFjZT0icHJlc2VydmUiPg0KPGc+DQoJPGc+DQoJCTxwYXRoIGQ9Ik01MTIsOTcuMjQ4Yy0xOS4wNCw4LjM1Mi0zOS4zMjgsMTMuODg4LTYwLjQ4LDE2LjU3NmMyMS43Ni0xMi45OTIsMzguMzY4LTMzLjQwOCw0Ni4xNzYtNTguMDE2DQoJCQljLTIwLjI4OCwxMi4wOTYtNDIuNjg4LDIwLjY0LTY2LjU2LDI1LjQwOEM0MTEuODcyLDYwLjcwNCwzODQuNDE2LDQ4LDM1NC40NjQsNDhjLTU4LjExMiwwLTEwNC44OTYsNDcuMTY4LTEwNC44OTYsMTA0Ljk5Mg0KCQkJYzAsOC4zMiwwLjcwNCwxNi4zMiwyLjQzMiwyMy45MzZjLTg3LjI2NC00LjI1Ni0xNjQuNDgtNDYuMDgtMjE2LjM1Mi0xMDkuNzkyYy05LjA1NiwxNS43MTItMTQuMzY4LDMzLjY5Ni0xNC4zNjgsNTMuMDU2DQoJCQljMCwzNi4zNTIsMTguNzIsNjguNTc2LDQ2LjYyNCw4Ny4yMzJjLTE2Ljg2NC0wLjMyLTMzLjQwOC01LjIxNi00Ny40MjQtMTIuOTI4YzAsMC4zMiwwLDAuNzM2LDAsMS4xNTINCgkJCWMwLDUxLjAwOCwzNi4zODQsOTMuMzc2LDg0LjA5NiwxMDMuMTM2Yy04LjU0NCwyLjMzNi0xNy44NTYsMy40NTYtMjcuNTIsMy40NTZjLTYuNzIsMC0xMy41MDQtMC4zODQtMTkuODcyLTEuNzkyDQoJCQljMTMuNiw0MS41NjgsNTIuMTkyLDcyLjEyOCw5OC4wOCw3My4xMmMtMzUuNzEyLDI3LjkzNi04MS4wNTYsNDQuNzY4LTEzMC4xNDQsNDQuNzY4Yy04LjYwOCwwLTE2Ljg2NC0wLjM4NC0yNS4xMi0xLjQ0DQoJCQlDNDYuNDk2LDQ0Ni44OCwxMDEuNiw0NjQsMTYxLjAyNCw0NjRjMTkzLjE1MiwwLDI5OC43NTItMTYwLDI5OC43NTItMjk4LjY4OGMwLTQuNjQtMC4xNi05LjEyLTAuMzg0LTEzLjU2OA0KCQkJQzQ4MC4yMjQsMTM2Ljk2LDQ5Ny43MjgsMTE4LjQ5Niw1MTIsOTcuMjQ4eiIvPg0KCTwvZz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjwvc3ZnPg0K" width=5%>   
+  
+[__@AyushBipinPatel__](https://github.com/AyushBipinPatel) <img src="data:image/svg+xml;base64,PHN2ZyBlbmFibGUtYmFja2dyb3VuZD0ibmV3IDAgMCAyNCAyNCIgaGVpZ2h0PSI1MTIiIHZpZXdCb3g9IjAgMCAyNCAyNCIgd2lkdGg9IjUxMiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJtMTIgLjVjLTYuNjMgMC0xMiA1LjI4LTEyIDExLjc5MiAwIDUuMjExIDMuNDM4IDkuNjMgOC4yMDUgMTEuMTg4LjYuMTExLjgyLS4yNTQuODItLjU2NyAwLS4yOC0uMDEtMS4wMjItLjAxNS0yLjAwNS0zLjMzOC43MTEtNC4wNDItMS41ODItNC4wNDItMS41ODItLjU0Ni0xLjM2MS0xLjMzNS0xLjcyNS0xLjMzNS0xLjcyNS0xLjA4Ny0uNzMxLjA4NC0uNzE2LjA4NC0uNzE2IDEuMjA1LjA4MiAxLjgzOCAxLjIxNSAxLjgzOCAxLjIxNSAxLjA3IDEuODAzIDIuODA5IDEuMjgyIDMuNDk1Ljk4MS4xMDgtLjc2My40MTctMS4yODIuNzYtMS41NzctMi42NjUtLjI5NS01LjQ2Ni0xLjMwOS01LjQ2Ni01LjgyNyAwLTEuMjg3LjQ2NS0yLjMzOSAxLjIzNS0zLjE2NC0uMTM1LS4yOTgtLjU0LTEuNDk3LjEwNS0zLjEyMSAwIDAgMS4wMDUtLjMxNiAzLjMgMS4yMDkuOTYtLjI2MiAxLjk4LS4zOTIgMy0uMzk4IDEuMDIuMDA2IDIuMDQuMTM2IDMgLjM5OCAyLjI4LTEuNTI1IDMuMjg1LTEuMjA5IDMuMjg1LTEuMjA5LjY0NSAxLjYyNC4yNCAyLjgyMy4xMiAzLjEyMS43NjUuODI1IDEuMjMgMS44NzcgMS4yMyAzLjE2NCAwIDQuNTMtMi44MDUgNS41MjctNS40NzUgNS44MTcuNDIuMzU0LjgxIDEuMDc3LjgxIDIuMTgyIDAgMS41NzgtLjAxNSAyLjg0Ni0uMDE1IDMuMjI5IDAgLjMwOS4yMS42NzguODI1LjU2IDQuODAxLTEuNTQ4IDguMjM2LTUuOTcgOC4yMzYtMTEuMTczIDAtNi41MTItNS4zNzMtMTEuNzkyLTEyLTExLjc5MnoiIGZpbGw9IiMyMTIxMjEiLz48L3N2Zz4=" width=5%>
+  
+  
+[__ayushpatel.netlify.app__](https://ayushpatel.netlify.app/) <img src="data:image/svg+xml;base64,PHN2ZyBpZD0iTGF5ZXJfMSIgZW5hYmxlLWJhY2tncm91bmQ9Im5ldyAwIDAgNTEyLjQxOCA1MTIuNDE4IiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDUxMi40MTggNTEyLjQxOCIgd2lkdGg9IjUxMiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJtNDM3LjMzNSA3NS4wODJjLTEwMC4xLTEwMC4xMDItMjYyLjEzNi0xMDAuMTE4LTM2Mi4yNTIgMC0xMDAuMTAzIDEwMC4xMDItMTAwLjExOCAyNjIuMTM2IDAgMzYyLjI1MyAxMDAuMSAxMDAuMTAyIDI2Mi4xMzYgMTAwLjExNyAzNjIuMjUyIDAgMTAwLjEwMy0xMDAuMTAyIDEwMC4xMTctMjYyLjEzNiAwLTM2Mi4yNTN6bS0xMC43MDYgMzI1LjczOWMtMTEuOTY4LTEwLjcwMi0yNC43Ny0yMC4xNzMtMzguMjY0LTI4LjMzNSA4LjkxOS0zMC44MDkgMTQuMjAzLTY0LjcxMiAxNS40NTItOTkuOTU0aDc1LjMwOWMtMy40MDUgNDcuNTAzLTIxLjY1NyA5Mi4wNjQtNTIuNDk3IDEyOC4yODl6bS0zOTMuMzM4LTEyOC4yODloNzUuMzA5YzEuMjQ5IDM1LjI0MiA2LjUzMyA2OS4xNDUgMTUuNDUyIDk5Ljk1NC0xMy40OTQgOC4xNjItMjYuMjk2IDE3LjYzMy0zOC4yNjQgMjguMzM1LTMwLjg0LTM2LjIyNS00OS4wOTEtODAuNzg2LTUyLjQ5Ny0xMjguMjg5em01Mi40OTgtMTYwLjkzNmMxMS45NjggMTAuNzAyIDI0Ljc3IDIwLjE3MyAzOC4yNjQgMjguMzM1LTguOTE5IDMwLjgwOS0xNC4yMDMgNjQuNzEyLTE1LjQ1MiA5OS45NTRoLTc1LjMxYzMuNDA2LTQ3LjUwMiAyMS42NTctOTIuMDYzIDUyLjQ5OC0xMjguMjg5em0xNTQuMDk3IDMxLjcwOWMtMjYuNjIyLTEuOTA0LTUyLjI5MS04LjQ2MS03Ni4wODgtMTkuMjc4IDEzLjg0LTM1LjYzOSAzOS4zNTQtNzguMzg0IDc2LjA4OC04OC45Nzd6bTAgMzIuNzA4djYzLjg3M2gtOTguNjI1YzEuMTMtMjkuODEyIDUuMzU0LTU4LjQzOSAxMi4zNzktODQuNjMyIDI3LjA0MyAxMS44MjIgNTYuMTI3IDE4Ljg4MiA4Ni4yNDYgMjAuNzU5em0wIDk2LjUxOXY2My44NzNjLTMwLjExOSAxLjg3Ny01OS4yMDMgOC45MzctODYuMjQ2IDIwLjc1OS03LjAyNS0yNi4xOTMtMTEuMjQ5LTU0LjgyLTEyLjM3OS04NC42MzJ6bTAgOTYuNTgxdjEwOC4yNTRjLTM2LjczMi0xMC41OTMtNjIuMjQ2LTUzLjMzMy03Ni4wODgtODguOTc2IDIzLjc5Ny0xMC44MTcgNDkuNDY2LTE3LjM3NCA3Ni4wODgtMTkuMjc4em0zMi42NDYgMGMyNi42MjIgMS45MDQgNTIuMjkxIDguNDYxIDc2LjA4OCAxOS4yNzgtMTMuODQxIDM1LjY0LTM5LjM1NCA3OC4zODMtNzYuMDg4IDg4Ljk3NnptMC0zMi43MDh2LTYzLjg3M2g5OC42MjVjLTEuMTMgMjkuODEyLTUuMzU0IDU4LjQzOS0xMi4zNzkgODQuNjMyLTI3LjA0My0xMS44MjItNTYuMTI3LTE4Ljg4Mi04Ni4yNDYtMjAuNzU5em0wLTk2LjUxOXYtNjMuODczYzMwLjExOS0xLjg3NyA1OS4yMDMtOC45MzcgODYuMjQ2LTIwLjc1OSA3LjAyNSAyNi4xOTMgMTEuMjQ5IDU0LjgyIDEyLjM3OSA4NC42MzJ6bTAtOTYuNTgxdi0xMDguMjU0YzM2LjczNCAxMC41OTMgNjIuMjQ4IDUzLjMzOCA3Ni4wODggODguOTc3LTIzLjc5NyAxMC44MTYtNDkuNDY2IDE3LjM3My03Ni4wODggMTkuMjc3em03My4zMi05MS45NTdjMjAuODk1IDkuMTUgNDAuMzg5IDIxLjU1NyA1Ny44NjQgMzYuOTUxLTguMzE4IDcuMzM0LTE3LjA5NSAxMy45ODQtMjYuMjYgMTkuOTMxLTguMTM5LTIwLjE1Mi0xOC41MzYtMzkuNzM2LTMxLjYwNC01Ni44ODJ6bS0yMTAuODkxIDU2Ljg4MmMtOS4xNjUtNS45NDctMTcuOTQxLTEyLjU5Ny0yNi4yNi0xOS45MzEgMTcuNDc1LTE1LjM5NCAzNi45NjktMjcuODAxIDU3Ljg2NC0zNi45NTEtMTMuMDY4IDE3LjE0OC0yMy40NjUgMzYuNzMyLTMxLjYwNCA1Ni44ODJ6bS4wMDEgMjk1Ljk1OGM4LjEzOCAyMC4xNTEgMTguNTM3IDM5LjczNiAzMS42MDQgNTYuODgyLTIwLjg5NS05LjE1LTQwLjM4OS0yMS41NTctNTcuODY0LTM2Ljk1MSA4LjMxOC03LjMzNCAxNy4wOTUtMTMuOTg0IDI2LjI2LTE5LjkzMXptMjQyLjQ5NCAwYzkuMTY1IDUuOTQ3IDE3Ljk0MiAxMi41OTcgMjYuMjYgMTkuOTMtMTcuNDc1IDE1LjM5NC0zNi45NjkgMjcuODAxLTU3Ljg2NCAzNi45NTEgMTMuMDY3LTE3LjE0NCAyMy40NjUtMzYuNzI5IDMxLjYwNC01Ni44ODF6bTI2LjM2Mi0xNjQuMzAyYy0xLjI0OS0zNS4yNDItNi41MzMtNjkuMTQ2LTE1LjQ1Mi05OS45NTQgMTMuNDk0LTguMTYyIDI2LjI5NS0xNy42MzMgMzguMjY0LTI4LjMzNSAzMC44NCAzNi4yMjUgNDkuMDkxIDgwLjc4NiA1Mi40OTcgMTI4LjI4OXoiLz48L3N2Zz4=" width=5%>    
+  
+  
+[__ayush.ap58@gmail.com__](ayush.ap58@gmail.com)<img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/Pg0KPCEtLSBHZW5lcmF0b3I6IEFkb2JlIElsbHVzdHJhdG9yIDE5LjAuMCwgU1ZHIEV4cG9ydCBQbHVnLUluIC4gU1ZHIFZlcnNpb246IDYuMDAgQnVpbGQgMCkgIC0tPg0KPHN2ZyB2ZXJzaW9uPSIxLjEiIGlkPSJDYXBhXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4Ig0KCSB2aWV3Qm94PSIwIDAgNTExLjk3NCA1MTEuOTc0IiBzdHlsZT0iZW5hYmxlLWJhY2tncm91bmQ6bmV3IDAgMCA1MTEuOTc0IDUxMS45NzQ7IiB4bWw6c3BhY2U9InByZXNlcnZlIj4NCjxnPg0KCTxnPg0KCQk8Zz4NCgkJCTxwYXRoIGQ9Ik01MTEuODcyLDE5NS43MjVjLTAuMDUzLTAuNTg4LTAuMTctMS4xNjktMC4zNS0xLjczMmMtMC4xMTctMC41MDMtMC4yOC0wLjk5NC0wLjQ4Ni0xLjQ2OA0KCQkJCWMtMC4yMzktMC40NjMtMC41MjUtMC45MDEtMC44NTMtMS4zMDZjLTAuMzI5LTAuNDgxLTAuNzEtMC45MjQtMS4xMzUtMS4zMjNjLTAuMTM3LTAuMTE5LTAuMTk2LTAuMjgyLTAuMzQxLTAuNDAxDQoJCQkJbC04Mi4wNjUtNjMuNzM1VjU5LjcwNGMwLTE0LjEzOC0xMS40NjItMjUuNi0yNS42LTI1LjZoLTkyLjQ3NkwyNzEuNTM5LDUuMzU1Yy05LjE0Ny03LjEzNC0yMS45NzQtNy4xMzQtMzEuMTIxLDANCgkJCQlsLTM3LjAzNSwyOC43NDloLTkyLjQ3NmMtMTQuMTM4LDAtMjUuNiwxMS40NjEtMjUuNiwyNS42djY2LjA1N0wzLjI2OCwxODkuNDk2Yy0wLjE0NSwwLjEyLTAuMjA1LDAuMjgyLTAuMzQxLDAuNDAxDQoJCQkJYy0wLjQyNSwwLjM5OC0wLjgwNiwwLjg0Mi0xLjEzNSwxLjMyM2MtMC4zMjgsMC40MDUtMC42MTQsMC44NDItMC44NTMsMS4zMDZjLTAuMjA3LDAuNDczLTAuMzY5LDAuOTY1LTAuNDg2LDEuNDY4DQoJCQkJYy0wLjE3OCwwLjU1NS0wLjI5NSwxLjEyNy0wLjM1LDEuNzA3YzAsMC4xNzktMC4xMDIsMC4zMzMtMC4xMDIsMC41MTJWNDg2LjM3YzAuMDEyLDUuNDI4LDEuNzY4LDEwLjcwOCw1LjAwOSwxNS4wNjENCgkJCQljMC4wNTEsMC4wNzcsMC4wNiwwLjE3MSwwLjExOSwwLjIzOWMwLjA2LDAuMDY4LDAuMTg4LDAuMTQ1LDAuMjczLDAuMjM5YzQuNzk0LDYuMzA4LDEyLjI1LDEwLjAyNywyMC4xNzMsMTAuMDYxaDQ2MC44DQoJCQkJYzcuOTU0LTAuMDI0LDE1LjQ0MS0zLjc2MSwyMC4yNDEtMTAuMTAzYzAuMDY4LTAuMDg1LDAuMTcxLTAuMTExLDAuMjMtMC4xOTZjMC4wNi0wLjA4NSwwLjA2OC0wLjE2MiwwLjEyLTAuMjM5DQoJCQkJYzMuMjQxLTQuMzU0LDQuOTk3LTkuNjM0LDUuMDA5LTE1LjA2MVYxOTYuMjM3QzUxMS45NzQsMTk2LjA1OCw1MTEuODgxLDE5NS45MDQsNTExLjg3MiwxOTUuNzI1eiBNMjUwLjg1NCwxOC44Mg0KCQkJCWMyLjk4LTIuMzY4LDcuMi0yLjM2OCwxMC4xOCwwbDE5LjY4NiwxNS4yODNoLTQ5LjQ5M0wyNTAuODU0LDE4LjgyeiBNMjcuNzI1LDQ5NC45MDRsMjIzLjEzLTE3My4zMjENCgkJCQljMi45ODItMi4zNjQsNy4xOTktMi4zNjQsMTAuMTgsMGwyMjMuMTg5LDE3My4zMjFIMjcuNzI1eiBNNDk0LjkwOCw0ODEuNkwyNzEuNTM5LDMwOC4xMTdjLTkuMTQ5LTcuMTI4LTIxLjk3Mi03LjEyOC0zMS4xMjEsMA0KCQkJCUwxNy4wNDEsNDgxLjZWMjA5LjIzM0wxNTYuODc3LDMxNy44MmMzLjcyNiwyLjg4OSw5LjA4OCwyLjIxMSwxMS45NzctMS41MTVjMi44ODktMy43MjYsMi4yMTEtOS4wODgtMS41MTUtMTEuOTc3DQoJCQkJTDI1LjI3NiwxOTQuMDE4bDYwLjAzMi00Ni42NTJ2NjUuOTM3YzAsNC43MTMsMy44MjEsOC41MzMsOC41MzMsOC41MzNjNC43MTMsMCw4LjUzMy0zLjgyMSw4LjUzMy04LjUzM3YtMTUzLjYNCgkJCQljMC00LjcxMywzLjgyLTguNTMzLDguNTMzLTguNTMzaDI5MC4xMzNjNC43MTMsMCw4LjUzMywzLjgyLDguNTMzLDguNTMzdjE1My42YzAsNC43MTMsMy44Miw4LjUzMyw4LjUzMyw4LjUzMw0KCQkJCXM4LjUzMy0zLjgyMSw4LjUzMy04LjUzM3YtNjUuOTM3bDYwLjAzMiw0Ni42NTJsLTE0Mi4zMSwxMTAuNTA3Yy0yLjQ0OCwxLjg1NS0zLjcxMSw0Ljg4My0zLjMwNSw3LjkyOHMyLjQxNyw1LjYzNyw1LjI2Niw2Ljc4Ng0KCQkJCWMyLjg0OSwxLjE0OSw2LjA5NiwwLjY3OSw4LjUwMS0xLjIzMmwxNDAuMDgzLTEwOC43NzRWNDgxLjZ6Ii8+DQoJCQk8cGF0aCBkPSJNMzU4LjM3NCwyMDQuNzd2LTM0LjEzM2MwLTU2LjU1NC00NS44NDYtMTAyLjQtMTAyLjQtMTAyLjRjLTU2LjU1NCwwLTEwMi40LDQ1Ljg0Ni0xMDIuNCwxMDIuNA0KCQkJCXM0NS44NDYsMTAyLjQsMTAyLjQsMTAyLjRjNC43MTMsMCw4LjUzMy0zLjgyLDguNTMzLTguNTMzcy0zLjgyLTguNTMzLTguNTMzLTguNTMzYy00Ny4xMjgsMC04NS4zMzMtMzguMjA1LTg1LjMzMy04NS4zMzMNCgkJCQlzMzguMjA1LTg1LjMzMyw4NS4zMzMtODUuMzMzczg1LjMzMywzOC4yMDUsODUuMzMzLDg1LjMzM3YzNC4xMzNjMCw5LjQyNi03LjY0MSwxNy4wNjctMTcuMDY3LDE3LjA2Nw0KCQkJCXMtMTcuMDY3LTcuNjQxLTE3LjA2Ny0xNy4wNjd2LTM0LjEzM2MwLTQuNzEzLTMuODItOC41MzMtOC41MzMtOC41MzNzLTguNTMzLDMuODItOC41MzMsOC41MzMNCgkJCQljMCwxOC44NTEtMTUuMjgyLDM0LjEzMy0zNC4xMzMsMzQuMTMzYy0xOC44NTEsMC0zNC4xMzMtMTUuMjgyLTM0LjEzMy0zNC4xMzNzMTUuMjgyLTM0LjEzMywzNC4xMzMtMzQuMTMzDQoJCQkJYzQuNzEzLDAsOC41MzMtMy44Miw4LjUzMy04LjUzM3MtMy44Mi04LjUzMy04LjUzMy04LjUzM2MtMjIuOTE1LTAuMDUxLTQzLjA3NCwxNS4xMy00OS4zNTQsMzcuMTY4DQoJCQkJYy02LjI4LDIyLjAzOCwyLjg0Nyw0NS41NjUsMjIuMzQ3LDU3LjYwMWMxOS41LDEyLjAzNiw0NC42MjIsOS42NSw2MS41MDctNS44NDNjMS44NTgsMTguMDQ2LDE3LjU0MywzMS40NjQsMzUuNjU5LDMwLjUwNQ0KCQkJCUMzNDQuMjUsMjM3LjkxLDM1OC40MzEsMjIyLjkxMiwzNTguMzc0LDIwNC43N3oiLz4NCgkJPC9nPg0KCTwvZz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjwvc3ZnPg0K" width=5%>  
+
+---
+
+class: left, middle
+
+# About You
+
+Pre-requisite for this lecture.
+<br>
+<br>
+<br>
+--
+
+You know __how to execute/run a command.__
+<br>
+<br>
+<br>
+--
+
+You know __how to do basic arithmetic operations in R.__
+<br>
+<br>
+<br>
+--
+
+You know __how to write conditional statements in R.__
+<br>
+<br>
+<br>
+
+You know __how to access desired elements from a vector or a data frame.__
+
+---
+
+class: left, middle
+
+# Pre-workshop set-up
+
+Copy the following code in your console and run this code:
+
+> install.packages("tidyverse")
+
+Wait for a minute for it to be downloaded and installed.
+
+Copy the following command in your script and run:
+
+> library(dplyr)
+
+_Load the library palmerpenguins_
+
+## What is a library?
+
+## Why do we load it?
+
+## Do we need to do this every time?
+
+---
+
+name: begin lecture 2
+
+class: center,middle
+
+# The basics of data wrangling  
+
+using the {dplyr}
+
+<img src="https://raw.githubusercontent.com/rstudio/hex-stickers/master/thumbs/dplyr.png", width = 30%,align = "center">  
+
+image source: [RStudio Github Page](https://github.com/rstudio/hex-stickers)
+
+---
+
+name: Why wrangling and basic concepts
+
+#.center.middle[Do I need to know this?]  
+
+.pull-left[
+Data is not always clean  
+
+Even if it is clean, Its never how we want it to be
+
+Therefore we need to wrangle, transform or reshape it to a form that is useful to us.
+
+_How to do that??_  
+
+__`filter()`__  
+
+__`mutate()`__  
+
+__`group_by()` and `summarise()`__
+
+__`pivot_longer()` and `pivot_wider()`__*
+
+]  
+
+.pull-right[
+
+<iframe src="https://giphy.com/embed/7K3p2z8Hh9QOI" width="480" height="270" frameBorder="0" class="giphy-embed" allowFullScreen></iframe><p><a href="https://giphy.com/gifs/dog-what-confused-7K3p2z8Hh9QOI">via GIPHY</a></p>
+
+<img src="https://raw.githubusercontent.com/allisonhorst/palmerpenguins/master/man/figures/lter_penguins.png", width=50%, align = "center">
+]
+
+---
+
+name: using filter funciton
+
+class: top,left
+
+# Subsetting Observations or Rows
+
+`filter()` function allows us to subset data based on desired conditionality.
+
+
+<img src="https://raw.githubusercontent.com/allisonhorst/stats-illustrations/master/rstats-artwork/dplyr_filter.jpg", width=70%, align="center">
+
+
+---
+
+name: example 1 for filter
+
+class: top
+
+.center[From the `Plamer Penguins` filter only those penguins that are more than 3000 grams in body mass.]
+
+
+```{r ex_filter, results='hide'}
+filter(penguins,body_mass_g > 3000) %>%  #<<
+  knitr::kable()%>%
+  kableExtra::kable_styling()%>%
+  scroll_box(width = "100%", height = "400px")
+```
+
+
+```{r ref.label = 'ex_filter', echo=FALSE,out.height=6}
+
+```
+
+
+---
+
+name: example 2 for filter
+
+class: top
+
+.center[From the `Plamer Penguins` filter only those penguins that are __Chinstrap__ and __more than 3000 grams in body mass__.]
+
+
+```{r ex_filter2, results='hide'}
+filter(penguins, #<<
+       body_mass_g > 3000 & species == "Chinstrap") %>%  #<<
+  knitr::kable()%>%
+  kableExtra::kable_styling()%>%
+  scroll_box(width = "100%", height = "400px")
+```
+
+
+```{r ref.label = 'ex_filter2', echo=FALSE,out.height=6}
+
+```
+
+
+---
+
+name: formative assessment filter function
+
+class: top
+
+#.center[Your turn]
+
+write a code to filter only those penguins that are __either "Chinstrap" or have a "flipper length" more than 190mm__
+
+
+colnames that might be useful:  
+  `species`  
+  `flipper_length_mm`
+  
+<img src="https://raw.githubusercontent.com/allisonhorst/stats-illustrations/master/rstats-artwork/dplyr_filter.jpg", width=65%, align="center">
+
+---
+
+name: Create new columns 
+
+class: top
+
+#.center[Create new columns in the data]
+
+.center[using `mutate()` funtion]
+
+<img src="https://github.com/allisonhorst/stats-illustrations/blob/master/rstats-artwork/dplyr_mutate.png?raw=true", width=55%, align="center">
+
+---
+
+name: example 1 mutate
+
+class: top
+
+.center[Create a new column by the name of __`bill_length_cm`__ using the data from column __`bill_length_mm`__]
+
+10mm = 1cm
+
+```{r ex1_mutate, results='hide'}
+mutate(penguins, bill_length_cm = bill_length_mm/10) %>% #<<
+  knitr::kable()%>%
+  kableExtra::kable_styling()%>%
+  scroll_box(width = "100%", height = "400px")
+```
+
+```{r ref.label='ex1_mutate', echo=FALSE}
+
+```
+
+---
+
+name: example 2 mutate
+
+class: top
+
+.center[Multiple new columns can be created using the `mutate()`  
+creating new `bill_depth_cm` column]
+
+```{r ex2_mutate, results='hide'}
+mutate(penguins, bill_length_cm = bill_length_mm/10, #<<
+        bill_depth_cm = bill_depth_mm/10) %>% #<<
+  knitr::kable()%>%
+  kableExtra::kable_styling()%>%
+  scroll_box(width = "100%", height = "400px")
+```
+
+```{r ref.label='ex2_mutate', echo=FALSE}
+
+```
+
+
+---
+
+name: formative assessment mutate funciton
+
+class: top
+
+#.center[Your turn]
+
+write a code to create a new column __body_mass_kg__ using the `mutate()`.
+
+
+colnames that might be useful:  
+  `body_mass_g`
+  
+<img src="https://github.com/allisonhorst/stats-illustrations/blob/master/rstats-artwork/dplyr_mutate.png?raw=true", width=50%, align="center">
+
+---
+
+name: summarise function
+
+class: top, middle
+
+#.center[Summarise Functions]
+
+```
+These apply summary functions to columns to create a new table  
+of summary statistics. Summary functions take vectors as  
+input and return one value.
+``` 
+
+.right[from dplyr cheatsheet]
+
+---
+
+name: example 1 summarise function
+
+.center[What is the avergae flipper length and body mass of the penguins?]
+
+```{r}
+summarise(
+    penguins,
+    average_flipper_length = mean(flipper_length_mm,
+                                  na.rm = T),
+    avergae_body_mass_g = mean(body_mass_g,
+                               na.rm = T) 
+  )
+```
+
+---
+
+name: formative assessment
+
+class: top,middle
+
+.center[Write a code to obtain the __mean bill depth and median bill depth__.]
+
+Columns that might be useful:  
+  
+  `bill_depth_mm`
+  
+Functions that might be useful:  
+
+`mean()`  
+
+`median()`
+
+---
+
+name: cover slide pipe operator
+
+class: top,middle
+
+#.center[The pipe operator ` %>% `]
+
+.center[<img src="https://raw.githubusercontent.com/rstudio/hex-stickers/master/thumbs/pipe.png", width=30%, align="center">]
+
+.center[image source: [RStudio Github Page](https://github.com/rstudio/hex-stickers)]
+
+---
+
+name: Explanation of how pipes work
+
+class: top,center
+
+--
+
+.left[_You want to do this:_]
+
+__f(g(h(x)))__ == __z__
+
+_f_, _g_, and _h_ are functions.
+
+_x_ is the object on which you want to use said functions
+
+_z_ is the what we get from f(g(h(x)))
+
+--
+
+.left[_the `%>%` come in_]
+
+```
+x %>% 
+  h() %>% 
+    g() %>% 
+      f()
+```
+
+--
+
+.left[_Why use the ` %>% `_]
+
+Code Readability
+
+More Control on Intermediate Steps
+
+Less Intermediate Objects
+
+---
+
+name: comparison between using pipe and not using pipe
+
+class: top
+
+#.center[__A Comparison__]
+
+.center[From the pensuins data, for all the Gentoo Penguins I want to classify penguins as fluffy and count the number of gentoo penguins that are fluffy]
+
+.left[With ` %>% `].right[_Without_ ` %>% `]
+.pull-left[
+```{r}
+penguins %>% 
+  filter(species =="Gentoo") %>% 
+  mutate(
+    is_fluffy = if_else(
+      body_mass_g>3500,1,0)
+  ) %>% 
+  summarise(
+    Number_of_fluffy_Gentoos = 
+      sum(is_fluffy,na.rm = T)
+  )
+```
+
+]
+.pull-right[
+```{r}
+filter(penguins,
+       species == 
+         "Gentoo") ->gentoo_penguins
+
+summarise(mutate(gentoo_penguins,
+       is_fluffy = 
+         if_else(body_mass_g>3500,1,0)),
+       Number_of_fluffy_Gentoos = 
+         sum(is_fluffy,na.rm = T))
+```
+
+]
+
+---
+
+name: peeping into the pipe
+
+
+```{r flip_pipe, eval=FALSE, include=FALSE,message=FALSE,warning=FALSE}
+penguins %>% #BREAK
+  filter(species == 
+           "Gentoo") %>% #BREAK2
+  mutate(
+    is_fluffy = 
+      if_else(body_mass_g>3500,
+              1,0)
+  ) %>% #BREAK3
+  summarise(
+    Number_of_fluffy_Gentoos = 
+      sum(is_fluffy,na.rm = T),
+    average_flliper_length = 
+      mean(flipper_length_mm, 
+           na.rm = T),
+    average_bill_depth = 
+      mean(bill_depth_mm,
+           na.rm = T)
+  )
+```
+
+
+`r chunk_reveal(chunk_name = "flip_pipe",title = "Peeping into the pipe")`
+
+---
+
+name: Group_by intro slide
+
+class: top, center
+
+# `group_by()`
+
+
+```
+"Use group_by() to create a “grouped” copy of a table.   
+dplyr functions will manipulate each “group” separately   
+and then combine the results."
+```
+.right[From the {dplyr} cheat sheet]
+
+<img src = "https://github.com/allisonhorst/stats-illustrations/raw/master/rstats-artwork/group_by_ungroup.png", width = 50%>
+
+---
+
+name: example 1 group_by
+
+How to get `species` specific average body mass of the penguins?
+
+```{r example_group_by}
+penguins %>% 
+  group_by(species) %>% #<<
+  summarise(
+    avg_body_mass = 
+      mean(body_mass_g,na.rm = T)
+  )
+```
+
+---
+
+name: intro example 2 group_by
+
+class: top,center
+
+_Po -The Panda_ : Can we group observations by more than one variable?!!
+
+_Master Shifu_ : Well of course!
+
+_Po -The Panda_: Woooww!!! Show meee..
+
+.center[<iframe src="https://giphy.com/embed/1ym5LJ17vp77BL8X5O" width="500" height="300" frameBorder="0" class="giphy-embed" allowFullScreen></iframe><p><a href="https://giphy.com/gifs/mrw-summer-start-1ym5LJ17vp77BL8X5O">via GIPHY</a></p>]
+
+---
+
+name: example 2 group_by
+
+How to get `species` and `sex` specific average body mass of the penguins?
+
+```{r example2_group_by}
+penguins %>% 
+  group_by(species,sex) %>% #<<
+  summarise(
+    avg_body_mass = 
+      mean(body_mass_g,na.rm = T)
+  )
+```
+
+---
+
+name: intro pivots
+
+class: top,center
+
+# Pivot
+
+<img src="https://raw.githubusercontent.com/AyushBipinPatel/Module-Intro-to-data-visualizarion/master/PivotPicture.jpg", width=65%>
+
+
+.left[Prakhar is a hypothetical person ;)]
+---
+
+name: pivot longer demo
+
+# Example for `pivot_longer()`
+
+```{r}
+penguins %>%  
+  pivot_longer(cols = bill_length_mm : flipper_length_mm,
+               names_to = "body_feature",
+               values_to = "measured_value_mm")%>% 
+               knitr::kable()%>%
+               kableExtra::kable_styling()%>%
+               scroll_box(width = "100%", height = "300px")
+
+```
+
+---
+
+name: example Pivot Longer    
+class: top,center
+
+# Your Turn
+
+Use the `peguins` data and convert it into a _long_ data frame. Utilize the columns related to bill measurements and change it into a single column.
+
+.left[Columns names that may be useful]
+
+* .left[bill_length_mm]
+* .left[bill_depth_mm]
+
+.left[Name the new columns `bill_feature`(contains bill depth or length) and `bill_measurement`(contains value)]
+
+---
+
+name: demo pivot_wider
+
+class: top,center
+
+# Example for `pivot_wider()`
+
+.left[Consider the following data]
+
+```{r include=FALSE}
+tibble(
+  name = c(rep(c("Ayush"),3),rep(c("Prakhar"),3)),
+  Subject = rep(c("Mathematics","Science","C++"),2),
+  score = c(98,80,55,65,50,0)
+) -> scores
+```
+
+.left[
+```{r}
+scores
+```
+]
+
+.left[We want it in the following format]
+
+.left[
+name  | Mathematics  | Science  | C++
+------|--------------|----------|-----
+
+]
+
+---
+
+name: demo continued pivot_wider
+
+class: top,center
+
+# Example for `pivot_wider()`
+
+.left[
+```{r}
+scores %>% 
+  pivot_wider(names_from = Subject, values_from = score)
+```
+
+]
+
+---
+
+name: example pivot wider
+
+# .center[Your Turn]
+
+copy the code to your file and run it, this will create the data for you to use.
+
+```{r}
+tibble(
+  name = rep(c(rep(c("Ayush"),3),rep(c("Prakhar"),3)),2),
+  Subject = rep(rep(c("Mathematics","Science","C++"),2),2),
+  score = c(98,80,55,65,50,0,65,50,0,98,80,55),
+  year = c(rep("2009-2010",6),rep("2010-2011",6))
+) -> scores
+```
+
+Use the `pivot_wider()` to expand the data from the `year` column.
+
+---
+
+name: refresher is on dplyr is completed
+class: center,top
+background-image: url(https://images.unsplash.com/photo-1582782657709-a4a0fd0a767e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=700&q=80)
+background-size: cover
+# Basics of dplyr is completed
+
+---
+class: inverse,center, middle
+
+background-image: url(figs/thank-you.jpg)
+background-size: cover
+
+# Thank You
+
+<br><br>
+.big[Feedback is welcome at: _ayush.ap58@gmail.com_]
+
+.tiny[Photo by David Sun from Pexels]
+---
