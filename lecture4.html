@@ -17,6 +17,8 @@
 
 
 
+
+
 layout: true
 ---
 
@@ -149,433 +151,86 @@ _Merge Data with shape file using left_join()_
 _Plot using ggplot2 and geom_sf()_
 
 ---
-
 class: left, top
 
 # Step1: Merging data
-_using left_join()_
 
 .panelset[
+.panel[.panel-name[DATA1]
 
-.panel[.panel-name[_Data1_]
 
+```r
+tibble(
+  emp_id = c(111,222,333),
+  emp_name = c("Raj", "Simran", "Bauji"),
+  emp_salary = c(5000,5000,500000)
+) -&gt; obj_1
+
+obj_1
+```
 
 ```
-## [38;5;246m# A tibble: 3 x 3[39m
+## # A tibble: 3 x 3
 ##   emp_id emp_name emp_salary
-##    [3m[38;5;246m&lt;dbl&gt;[39m[23m [3m[38;5;246m&lt;chr&gt;[39m[23m         [3m[38;5;246m&lt;dbl&gt;[39m[23m
-## [38;5;250m1[39m    111 Raj            [4m5[24m000
-## [38;5;250m2[39m    222 Simran         [4m5[24m000
-## [38;5;250m3[39m    333 Bauji        [4m5[24m[4m0[24m[4m0[24m000
+##    &lt;dbl&gt; &lt;chr&gt;         &lt;dbl&gt;
+## 1    111 Raj            5000
+## 2    222 Simran         5000
+## 3    333 Bauji        500000
 ```
 
-]
 
-.panel[.panel-name[_Data2_]
+] &lt;!---panel 1-----&gt;
+.panel[.panel-name[DATA2]
 
+
+```r
+tibble(
+  emp_id = c(111,222,333),
+  emp_name = c("Raj", "Simran", "Bauji"),
+  emp_appraisal = c(0.50,.50,0.00)
+) -&gt; obj_2
+
+obj_2
+```
 
 ```
-## [38;5;246m# A tibble: 3 x 3[39m
+## # A tibble: 3 x 3
 ##   emp_id emp_name emp_appraisal
-##    [3m[38;5;246m&lt;dbl&gt;[39m[23m [3m[38;5;246m&lt;chr&gt;[39m[23m            [3m[38;5;246m&lt;dbl&gt;[39m[23m
-## [38;5;250m1[39m    111 Raj                0.5
-## [38;5;250m2[39m    222 Simran             0.5
-## [38;5;250m3[39m    333 Bauji              0
+##    &lt;dbl&gt; &lt;chr&gt;            &lt;dbl&gt;
+## 1    111 Raj                0.5
+## 2    222 Simran             0.5
+## 3    333 Bauji              0
 ```
 
-]
 
-.panel[.panel-name[_Code to join_]
-
+]&lt;!---panel 2-----&gt;
+.panel[.panel-name[CODE]
 
 ```r
 left_join(obj_1, obj_2,
           by = c("emp_id" = "emp_id")) -&gt;out_obj
 ```
+]&lt;!---panel 3-----&gt;
+.panel[.panel-name[MERGED DATA]
+
+```r
+out_obj
+```
+
+```
+## # A tibble: 3 x 5
+##   emp_id emp_name.x emp_salary emp_name.y emp_appraisal
+##    &lt;dbl&gt; &lt;chr&gt;           &lt;dbl&gt; &lt;chr&gt;              &lt;dbl&gt;
+## 1    111 Raj              5000 Raj                  0.5
+## 2    222 Simran           5000 Simran               0.5
+## 3    333 Bauji          500000 Bauji                0
+```
 
 ]
-
-.panel[.panel-name[_Output_]
-
-<style>html {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
-}
-
-#gewyoljtii .gt_table {
-  display: table;
-  border-collapse: collapse;
-  margin-left: auto;
-  margin-right: auto;
-  color: #333333;
-  font-size: 16px;
-  font-weight: normal;
-  font-style: normal;
-  background-color: #FFFFFF;
-  width: auto;
-  border-top-style: solid;
-  border-top-width: 2px;
-  border-top-color: #A8A8A8;
-  border-right-style: none;
-  border-right-width: 2px;
-  border-right-color: #D3D3D3;
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #A8A8A8;
-  border-left-style: none;
-  border-left-width: 2px;
-  border-left-color: #D3D3D3;
-}
-
-#gewyoljtii .gt_heading {
-  background-color: #FFFFFF;
-  text-align: center;
-  border-bottom-color: #FFFFFF;
-  border-left-style: none;
-  border-left-width: 1px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 1px;
-  border-right-color: #D3D3D3;
-}
-
-#gewyoljtii .gt_title {
-  color: #333333;
-  font-size: 125%;
-  font-weight: initial;
-  padding-top: 4px;
-  padding-bottom: 4px;
-  border-bottom-color: #FFFFFF;
-  border-bottom-width: 0;
-}
-
-#gewyoljtii .gt_subtitle {
-  color: #333333;
-  font-size: 85%;
-  font-weight: initial;
-  padding-top: 0;
-  padding-bottom: 4px;
-  border-top-color: #FFFFFF;
-  border-top-width: 0;
-}
-
-#gewyoljtii .gt_bottom_border {
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3;
-}
-
-#gewyoljtii .gt_col_headings {
-  border-top-style: solid;
-  border-top-width: 2px;
-  border-top-color: #D3D3D3;
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3;
-  border-left-style: none;
-  border-left-width: 1px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 1px;
-  border-right-color: #D3D3D3;
-}
-
-#gewyoljtii .gt_col_heading {
-  color: #333333;
-  background-color: #FFFFFF;
-  font-size: 100%;
-  font-weight: normal;
-  text-transform: inherit;
-  border-left-style: none;
-  border-left-width: 1px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 1px;
-  border-right-color: #D3D3D3;
-  vertical-align: bottom;
-  padding-top: 5px;
-  padding-bottom: 6px;
-  padding-left: 5px;
-  padding-right: 5px;
-  overflow-x: hidden;
-}
-
-#gewyoljtii .gt_column_spanner_outer {
-  color: #333333;
-  background-color: #FFFFFF;
-  font-size: 100%;
-  font-weight: normal;
-  text-transform: inherit;
-  padding-top: 0;
-  padding-bottom: 0;
-  padding-left: 4px;
-  padding-right: 4px;
-}
-
-#gewyoljtii .gt_column_spanner_outer:first-child {
-  padding-left: 0;
-}
-
-#gewyoljtii .gt_column_spanner_outer:last-child {
-  padding-right: 0;
-}
-
-#gewyoljtii .gt_column_spanner {
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3;
-  vertical-align: bottom;
-  padding-top: 5px;
-  padding-bottom: 6px;
-  overflow-x: hidden;
-  display: inline-block;
-  width: 100%;
-}
-
-#gewyoljtii .gt_group_heading {
-  padding: 8px;
-  color: #333333;
-  background-color: #FFFFFF;
-  font-size: 100%;
-  font-weight: initial;
-  text-transform: inherit;
-  border-top-style: solid;
-  border-top-width: 2px;
-  border-top-color: #D3D3D3;
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3;
-  border-left-style: none;
-  border-left-width: 1px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 1px;
-  border-right-color: #D3D3D3;
-  vertical-align: middle;
-}
-
-#gewyoljtii .gt_empty_group_heading {
-  padding: 0.5px;
-  color: #333333;
-  background-color: #FFFFFF;
-  font-size: 100%;
-  font-weight: initial;
-  border-top-style: solid;
-  border-top-width: 2px;
-  border-top-color: #D3D3D3;
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3;
-  vertical-align: middle;
-}
-
-#gewyoljtii .gt_from_md > :first-child {
-  margin-top: 0;
-}
-
-#gewyoljtii .gt_from_md > :last-child {
-  margin-bottom: 0;
-}
-
-#gewyoljtii .gt_row {
-  padding-top: 8px;
-  padding-bottom: 8px;
-  padding-left: 5px;
-  padding-right: 5px;
-  margin: 10px;
-  border-top-style: solid;
-  border-top-width: 1px;
-  border-top-color: #D3D3D3;
-  border-left-style: none;
-  border-left-width: 1px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 1px;
-  border-right-color: #D3D3D3;
-  vertical-align: middle;
-  overflow-x: hidden;
-}
-
-#gewyoljtii .gt_stub {
-  color: #333333;
-  background-color: #FFFFFF;
-  font-size: 100%;
-  font-weight: initial;
-  text-transform: inherit;
-  border-right-style: solid;
-  border-right-width: 2px;
-  border-right-color: #D3D3D3;
-  padding-left: 12px;
-}
-
-#gewyoljtii .gt_summary_row {
-  color: #333333;
-  background-color: #FFFFFF;
-  text-transform: inherit;
-  padding-top: 8px;
-  padding-bottom: 8px;
-  padding-left: 5px;
-  padding-right: 5px;
-}
-
-#gewyoljtii .gt_first_summary_row {
-  padding-top: 8px;
-  padding-bottom: 8px;
-  padding-left: 5px;
-  padding-right: 5px;
-  border-top-style: solid;
-  border-top-width: 2px;
-  border-top-color: #D3D3D3;
-}
-
-#gewyoljtii .gt_grand_summary_row {
-  color: #333333;
-  background-color: #FFFFFF;
-  text-transform: inherit;
-  padding-top: 8px;
-  padding-bottom: 8px;
-  padding-left: 5px;
-  padding-right: 5px;
-}
-
-#gewyoljtii .gt_first_grand_summary_row {
-  padding-top: 8px;
-  padding-bottom: 8px;
-  padding-left: 5px;
-  padding-right: 5px;
-  border-top-style: double;
-  border-top-width: 6px;
-  border-top-color: #D3D3D3;
-}
-
-#gewyoljtii .gt_striped {
-  background-color: rgba(128, 128, 128, 0.05);
-}
-
-#gewyoljtii .gt_table_body {
-  border-top-style: solid;
-  border-top-width: 2px;
-  border-top-color: #D3D3D3;
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3;
-}
-
-#gewyoljtii .gt_footnotes {
-  color: #333333;
-  background-color: #FFFFFF;
-  border-bottom-style: none;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3;
-  border-left-style: none;
-  border-left-width: 2px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 2px;
-  border-right-color: #D3D3D3;
-}
-
-#gewyoljtii .gt_footnote {
-  margin: 0px;
-  font-size: 90%;
-  padding: 4px;
-}
-
-#gewyoljtii .gt_sourcenotes {
-  color: #333333;
-  background-color: #FFFFFF;
-  border-bottom-style: none;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3;
-  border-left-style: none;
-  border-left-width: 2px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 2px;
-  border-right-color: #D3D3D3;
-}
-
-#gewyoljtii .gt_sourcenote {
-  font-size: 90%;
-  padding: 4px;
-}
-
-#gewyoljtii .gt_left {
-  text-align: left;
-}
-
-#gewyoljtii .gt_center {
-  text-align: center;
-}
-
-#gewyoljtii .gt_right {
-  text-align: right;
-  font-variant-numeric: tabular-nums;
-}
-
-#gewyoljtii .gt_font_normal {
-  font-weight: normal;
-}
-
-#gewyoljtii .gt_font_bold {
-  font-weight: bold;
-}
-
-#gewyoljtii .gt_font_italic {
-  font-style: italic;
-}
-
-#gewyoljtii .gt_super {
-  font-size: 65%;
-}
-
-#gewyoljtii .gt_footnote_marks {
-  font-style: italic;
-  font-size: 65%;
-}
-</style>
-<div id="gewyoljtii" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;"><table class="gt_table">
-  
-  <thead class="gt_col_headings">
-    <tr>
-      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">emp_id</th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1">emp_name.x</th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">emp_salary</th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1">emp_name.y</th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">emp_appraisal</th>
-    </tr>
-  </thead>
-  <tbody class="gt_table_body">
-    <tr>
-      <td class="gt_row gt_right">111</td>
-      <td class="gt_row gt_left">Raj</td>
-      <td class="gt_row gt_right">5e+03</td>
-      <td class="gt_row gt_left">Raj</td>
-      <td class="gt_row gt_right">0.5</td>
-    </tr>
-    <tr>
-      <td class="gt_row gt_right">222</td>
-      <td class="gt_row gt_left">Simran</td>
-      <td class="gt_row gt_right">5e+03</td>
-      <td class="gt_row gt_left">Simran</td>
-      <td class="gt_row gt_right">0.5</td>
-    </tr>
-    <tr>
-      <td class="gt_row gt_right">333</td>
-      <td class="gt_row gt_left">Bauji</td>
-      <td class="gt_row gt_right">5e+05</td>
-      <td class="gt_row gt_left">Bauji</td>
-      <td class="gt_row gt_right">0.0</td>
-    </tr>
-  </tbody>
-  
-  
-</table></div>
-
-]
-
 ]
 
 ---
+
 class: left,top
 
 # How to plot a shape file

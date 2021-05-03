@@ -18,7 +18,7 @@ output:
 
 ```{r setup,include=FALSE}
 options(htmltools.dir.version = FALSE)
-knitr::opts_chunk$set(warning = FALSE, message = FALSE,fig.height = 6)
+knitr::opts_chunk$set(warning = FALSE, message = FALSE,fig.height = 6,cache = FALSE)
 library(tidyverse)
 library(palmerpenguins)
 library(flair)
@@ -33,6 +33,8 @@ library(sf)
 library(geojsonsf)
 xaringanExtra::use_panelset()
 ```
+
+
 
 layout: true
 ---
@@ -215,17 +217,14 @@ _Merge Data with shape file using left_join()_
 _Plot using ggplot2 and geom_sf()_
 
 ---
-
 class: left, top
 
 # Step1: Merging data
-_using left_join()_
 
 .panelset[
+.panel[.panel-name[DATA1]
 
-.panel[.panel-name[_Data1_]
-
-```{r dummy1, echo=FALSE}
+```{r}
 tibble(
   emp_id = c(111,222,333),
   emp_name = c("Raj", "Simran", "Bauji"),
@@ -235,47 +234,39 @@ tibble(
 obj_1
 ```
 
-]
 
-.panel[.panel-name[_Data2_]
+] <!---panel 1----->
+.panel[.panel-name[DATA2]
 
-```{r dummy2, echo=FALSE}
+```{r}
 tibble(
   emp_id = c(111,222,333),
   emp_name = c("Raj", "Simran", "Bauji"),
   emp_appraisal = c(0.50,.50,0.00)
-)-> obj_2
+) -> obj_2
 
 obj_2
 ```
 
-]
 
-.panel[.panel-name[_Code to join_]
-
-```{r code_join, results='hide'}
-
+]<!---panel 2----->
+.panel[.panel-name[CODE]
+```{r code_join}
 left_join(obj_1, obj_2,
           by = c("emp_id" = "emp_id")) ->out_obj
           
 ```
-
-]
-
-.panel[.panel-name[_Output_]
-
-```{r show_out,echo=FALSE}
-
-out_obj %>%
-gt::gt()
-
+]<!---panel 3----->
+.panel[.panel-name[MERGED DATA]
+```{r}
+out_obj
 ```
 
 ]
-
 ]
 
 ---
+
 class: left,top
 
 # How to plot a shape file
