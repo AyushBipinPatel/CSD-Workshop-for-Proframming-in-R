@@ -1,6 +1,6 @@
 ---
-title: "Building your masterpiece with {ggplot2}"
-subtitle: "Lecture 3"
+title: "Awaken the inner cartographer"
+subtitle: "Lecture 4"
 author: "Ayush Patel"
 institute: "Part of the CSD workshop on research methodology"
 date: "`r Sys.Date()`"
@@ -29,6 +29,8 @@ library(here)
 library(icons)
 library(flipbookr)
 library(xaringanExtra)
+library(sf)
+library(geojsonsf)
 xaringanExtra::use_panelset()
 ```
 
@@ -41,11 +43,11 @@ background-image: url(figs/title_backdrop.jpg)
 background-size: cover
 
 
-# Building your masterpiece using
+# Awaken the inner cartographer
 
-<img src="https://raw.githubusercontent.com/rstudio/hex-stickers/master/thumbs/ggplot2.png" width="150px"/>
+<img src="https://user-images.githubusercontent.com/520851/34849243-0972e474-f722-11e7-9a3d-2d4bf5075835.png" width="150px"/>
 
-### Lecture 3
+### Lecture 4
 
 .large[Ayush Patel]
 <br>
@@ -53,7 +55,7 @@ Part of the CSD workshop on research methodology<br>
 `r Sys.Date()`
 <br><br>
 
-.tiny[ggplot2 logo from rstudio hex sticker git page]
+.tiny[sf Edzer Pebesma's Github page.]
 ---
 name: Introduction
 
@@ -87,24 +89,22 @@ You know __how to create an object__
 <br>
 <br>
 <br>
+--
+You know __basics of {dplyr}__
+<br>
+<br>
+<br>
+--
+You know __basics of {ggplot2}__
+<br>
+<br>
+<br>
+--
+You know __how to use the %>% operator__
+<br>
+<br>
+<br>
 
---
-You know __how to write conditional statements in R.__
-<br>
-<br>
-<br>
---
-You know __how to access desired elements from a vector or a data frame.__
-<br>
-<br>
-<br>
---
-You know __how to subset rows from a data frame.__
-<br>
-<br>
-<br>
---
-You know __how to mutate a data frame.__
 ---
 
 class: left, middle
@@ -112,391 +112,232 @@ class: left, middle
 # Pre-workshop set-up
 
 Copy the following command in your script and run:
-
+> install.packages("sf")
+<br>
+> install.packages("geojsonsf")
+<br>
+> library(sf)
+<br>
+> library(geojsonsf)
+<br>
 > library(dplyr)
 <br>
 > library(ggplot2)
 <br>
-> library(palmerpenguins)
-<br>
 
-## Dont we need to install the ggplot2 library?
+_Source of shape file : covid19india_
 
-## What is the ggplot2 library?
-
+> geojson_sf("https://raw.githubusercontent.com/AyushBipinPatel/CSD-Workshop-for-Programming-in-R/main/india-districts-2019-734.geojson") -> ind_shp
+ 
 ---
-class: left, middle
+class: left,middle
 
-background-image: url(figs/concept_map_visualization.jpg)
-background-size: contain
----
-
-class: left
-
-
-```{r comp_plot, eval=FALSE, include=FALSE}
-
-  ggplot(data = penguins)+ # the plot area and data
-  geom_boxplot(aes(species, body_mass_g,
-                   fill = species),
-               alpha = 0.5)+ # geom and aesthetic
-  geom_jitter(aes(species,body_mass_g,
-                  colour = species),
-              alpha = 0.5)+ # another layer with aesthetics
-  theme_bw()+ # theme
-  labs(
-    x = "Species",
-    y = "Body mass in grams",
-    title = "Distribution of Mass of penguins"
-  ) # labels
-```
-
-
-`r chunk_reveal(chunk_name = "comp_plot",title  = "Components of a plot")`
-
-
-???
-
-explain each layer and aes mapping
----
-class: left, middle
-
-# What will you learn?
+###  What will you be able to create by the end of this class
 
 .pull-left[
+```{r sil_ex1, echo=FALSE}
 
-   Types of geometries and when to use them<br><br>
-   How to map variables in data to aesthetics of a plot<br><br>
-   About the theme of a plot<br><br>
-   Labeling the plot<br><br>
+geojson_sf("https://raw.githubusercontent.com/AyushBipinPatel/CSD-Workshop-for-Programming-in-R/main/india-districts-2019-734.geojson") -> ind_shp
+
+ind_shp %>% 
+  mutate(
+    silly_ex1 = rnorm(734,25,2.5),
+    silly_ex2 = rep(c("A","B"),367)
+  ) ->ind_shp
+
+ind_shp %>% 
+  ggplot()+
+  geom_sf(aes(fill = silly_ex1))+
+  scale_fill_gradient(high = "#e37400")+
+  labs(
+    title = "Silly Example 1"
+  )+
+  guides(fill = guide_colorbar(
+    title.position = "top", title.hjust = 0.5,
+    barwidth = unit(20, 'lines'),
+    barheight = unit(0.5, 'lines') 
+    ))+
+  theme(
+    panel.grid = element_blank(),
+    panel.background = element_rect(fill = "#ffffff"),
+    axis.line = element_blank(),
+    axis.ticks = element_blank(),
+    axis.text = element_blank(),
+    legend.position = "bottom"
+  )
+
+
+```
 
 ]
 
 .pull-right[
 
-  geom_*() (density, histogram, bar, point, jitter, col, boxplot)<br><br>
-  The aes() (mapping variables to axes, shape, size, colour, fill and alpha of the geom)<br><br>
-  Intro to available themes theme_*()<br><br>
-  The labs() to add title, subtitle, axes labels and caption to the plot.<br><br>
+```{r sil_ex2, echo=FALSE}
+ind_shp %>% 
+  ggplot()+
+  geom_sf(aes(fill = silly_ex2))+
+  scale_fill_viridis_d()+
+  labs(
+    title = "Silly Example 2"
+  )+
+  theme(
+    panel.grid = element_blank(),
+    panel.background = element_rect(fill = "#ffffff"),
+    axis.line = element_blank(),
+    axis.ticks = element_blank(),
+    axis.text = element_blank(),
+    legend.position = "bottom",
+    legend.direction = "horizontal"
+  )
+```
+
 
 ]
+
+---
+class: left, middle
+
+# Process of creating a map
+
+--
+_Get Shape file_<br>
+A shape file is a data object that contains information for boundaries of a place or region.
+<br>
+<br>
+<br>
+--
+_Merge Data with shape file using left_join()_
+<br>
+<br>
+<br>
+--
+_Plot using ggplot2 and geom_sf()_
+
+---
+
+class: left, top
+
+# Step1: Merging data
+_using left_join()_
+
+.panelset[
+
+.panel[.panel-name[_Data1_]
+
+```{r dummy1, echo=FALSE}
+tibble(
+  emp_id = c(111,222,333),
+  emp_name = c("Raj", "Simran", "Bauji"),
+  emp_salary = c(5000,5000,500000)
+) -> obj_1
+
+obj_1
+```
+
+]
+
+.panel[.panel-name[_Data2_]
+
+```{r dummy2, echo=FALSE}
+tibble(
+  emp_id = c(111,222,333),
+  emp_name = c("Raj", "Simran", "Bauji"),
+  emp_appraisal = c(0.50,.50,0.00)
+)-> obj_2
+
+obj_2
+```
+
+]
+
+.panel[.panel-name[_Code to join_]
+
+```{r code_join, results='hide'}
+
+left_join(obj_1, obj_2,
+          by = c("emp_id" = "emp_id")) ->out_obj
+          
+```
+
+]
+
+.panel[.panel-name[_Output_]
+
+```{r show_out,echo=FALSE}
+
+out_obj %>%
+gt::gt()
+
+```
+
+]
+
+]
+
 ---
 class: left,top
 
-# Plotting one continuous variable
+# How to plot a shape file
 
-.pull-left[
-
-```{r ex_density, include=FALSE}
-ggplot(data = penguins)+
-  geom_density(aes(x = body_mass_g))
-```
-
-```{r f1, echo=FALSE}
-decorate("ex_density") %>% 
-  flair("+") %>% 
-  flair_funs(background = "pink") %>% 
-  flair_args(color = "red")%>%
-  flair_input_vals(color = "CornflowerBlue")%>%
-  knit_print.with_flair()
-```
-]
-
-.pull-right[
-```{r ex_hist, include=FALSE}
-ggplot(data = penguins)+
-  geom_histogram(aes(x = body_mass_g))
-```
-
-```{r f2, echo=FALSE}
-decorate("ex_hist") %>% 
-  flair("+") %>% 
-  flair_funs(background = "pink") %>% 
-  flair_args(color = "red")%>%
-  flair_input_vals(color = "CornflowerBlue")%>%
-  knit_print.with_flair()
-```
-
-]
----
-
-
-
-class: left, center
-
-background-image: url(figs/your-turn.jpg)
-background-size: cover
-
-.left-column[
-# `r icon_style(icons::fontawesome("keyboard"),scale = 3)` Your Turn
-]
-
-.right-column[
-.left[
-.big[
-
-Make a histogram of a continuous variable of your choice from the penguins data. __Plot is also an object__. Save it as you would save a vector. __Name it `chart_density`__
-
-]
-
-.tiny[background: Photo by Elena Saharova from Pexels]
-]
-]
-
-```{r time, echo=FALSE}
-countdown(minutes = 4,play_sound = TRUE,bottom = 0)
+```{r basic_plot}
+ggplot(ind_shp)+
+  geom_sf()
 ```
 
 ---
 class: left, top
 
-# Plotting one discrete variable
-
-```{r ex_bar, include = FALSE}
-ggplot(data = penguins)+
-  geom_bar(aes(x = island))
+```{r hide_obj_name_change,include=FALSE}
+ind_shp -> merged_data
 ```
 
-```{r f3, echo=FALSE}
-decorate("ex_bar") %>% 
-  flair("+") %>% 
-  flair("geom_bar", background = "pink") %>% 
-  flair("aes", background = "pink") %>% 
-  flair("x = island", color = "CornflowerBlue") %>% 
-  knit_print.with_flair()
+
+```{r show_fill_plt, eval=FALSE,include=FALSE}
+# use merged data
+ggplot(merged_data)+
+  geom_sf(aes(fill = silly_ex1))+
+  scale_fill_gradient(low = "#9ba746" ,
+                      high = "#e37400")+
+  theme(
+    panel.background = element_rect(
+      fill = "#ffffff"),
+    panel.grid = element_blank(),
+    axis.title = element_blank(),
+    axis.line = element_blank(),
+    axis.ticks = element_blank(),
+    axis.text = element_blank(),
+    legend.position = "bottom"
+  )
 ```
+
+`r chunk_reveal(chunk_name = "show_fill_plt", title = "Mapping a variable to the region")`
 
 ---
 
-class: left, top
+# Your Turn
 
-# Plotting two continuous variables
+Run the following code:
 
-```{r ex_point, include=FALSE}
-ggplot(data = penguins)+ 
-  geom_point(aes(x = bill_length_mm,y = bill_depth_mm))
-```
+> readr::read_csv(https://api.covid19india.org/csv/latest/district_wise.csv"") -> ind_covid_data
 
-```{r f4, echo=FALSE}
-decorate("ex_point") %>% 
-  flair("geom_point", background = "pink") %>% 
-  flair("aes", background = "pink") %>% 
-  flair("x = bill_length_mm",
-        color = "CornflowerBlue")%>%
-  flair("y = bill_depth_mm",
-        color = "CornflowerBlue")%>%
-  knit_print.with_flair()
-```
-
----
-
-
-class: left, center
-
-background-image: url(figs/your-turn.jpg)
-background-size: cover
-
-.left-column[
-# `r icon_style(icons::fontawesome("keyboard"),scale = 3)` Your Turn
-]
-
-.right-column[
-.left[
-.big[
-
-Make a scatter plot of two continuous variables of your choice from the penguins data. __Name it `chart_scatter`__
-
-]
-
-.tiny[background: Photo by Elena Saharova from Pexels]
-]
-]
-
-```{r time1, echo=FALSE}
-countdown(minutes = 4,play_sound = TRUE,bottom = 0)
-```
-
----
-class: left, top
-
-## Plotting one continuous anf one discrete variable
-
-.yscroll[
-
-.pull-left[
-
-```{r ex_col, include=FALSE}
-penguins %>% 
-  group_by(species) %>% 
-  summarise(
-    avg_body_mass = mean(body_mass_g,na.rm = T)
-  ) %>% 
-  ggplot() +
-  geom_col(aes(species,avg_body_mass))
-```
-
-```{r f_col, echo=FALSE}
-decorate("ex_col") %>% 
-  flair("+") %>% 
-  flair("geom_col", background = "pink") %>% 
-  flair("aes", background = "pink") %>%
-  flair("species,avg_body_mass",color = "CornflowerBlue") %>% 
-  knit_print.with_flair()
-```
-
-]
-
-
-.pull-right[
-
-```{r ex_box, include=FALSE}
-penguins %>% 
-  ggplot() +
-  geom_boxplot(aes(species,body_mass_g))
-```
-
-```{r f_box, echo=FALSE}
-decorate("ex_box") %>% 
-  flair("+") %>% 
-  flair("geom_boxplot", background = "pink") %>% 
-  flair("aes", background = "pink") %>%
-  flair("species,body_mass_g",color = "CornflowerBlue") %>% 
-  knit_print.with_flair()
-```
-
-]
-
-]
----
-
-class: left, top
-
-# Aesthetics of geoms
-
-.yscroll[
-.panelset[
-
-.panel[.panel-name[__fill__]
-
-```{r fill_ex}
-
-penguins %>% 
-  ggplot()+
-  geom_boxplot(aes(species, body_mass_g,
-                   fill = sex))
+_data source: covid19india_
 
 ```
 
-]
-
-.panel[.panel-name[__colour__]
-
-```{r col_ex}
-penguins %>% 
-  ggplot()+
-  geom_point(aes(bill_length_mm, bill_depth_mm,
-                 colour = species))
-```
-
-
-]
-
-.panel[.panel-name[__shape__]
-
-```{r shp_ex}
-penguins %>% 
-  ggplot()+
-  geom_point(aes(bill_length_mm, bill_depth_mm,
-                 shape = species))
+ind_shp %>% 
+  mutate(
+   match_key = str_c("st_nm", "district")
+  ) -> ind_shp
+  
+ind_covid_data  %>% 
+  mutate(
+   match_key = str_c("State", "District")
+  ) -> ind_coid_data
 
 ```
 
-
-]
-
-.panel[.panel-name[__alpha__]
-
-```{r alp_ex}
-penguins %>% 
-  ggplot()+
-  geom_point(aes(bill_length_mm, bill_depth_mm,
-                 colour = species),
-             alpha = 0.5)
-```
-
-]
-
-.panel[.panel-name[__size__]
-
-```{r siz_ex}
-penguins %>% 
-  ggplot()+
-  geom_point(aes(bill_length_mm, bill_depth_mm,
-                 size = species),
-             alpha = 0.5)
-```
-
-]
-
-]
-
-]
-
----
-class: left, middle
-
-# Plot Labels
-
-.pull-left[
-
-```
-.....
-.....  ## Your awesome plot code
-..... +
-labs(
-title = "Chart title",
-subtitle = "Chart Subtitle",
-x = "x-axis title",
-y = "y-axis title",
-caption = "Chart caption"
-)
-```
-]
-
-.pull-right[
-
-```{r labs_ex, echo=FALSE}
-penguins %>% 
-  ggplot()+
-  geom_point(aes(bill_length_mm, bill_depth_mm,
-                 colour = species),
-             alpha = 0.5)+
-  labs(
-    title = "Chart title",
-    subtitle = "Chart Subtitle",
-    x = "x-axis title",
-    y = "y-axis title",
-    caption = "Chart caption"
-)
-```
-
-
-]
----
-class: left, middle
-
-# GO Crazy
-
-Copy the following commands in console and execute one after another.
-
->install.packages("nycflights13")
-<br>
->library(nycflights13)
-
-Use the `View()` function to see the `flights` data.
-
-__Make a chart that you think will show some interesting insight.__
-
+Merge the data sets and create the Map of your choice.
 
 ---
 class: inverse,center, middle
