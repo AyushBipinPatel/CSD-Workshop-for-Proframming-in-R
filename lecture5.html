@@ -1,0 +1,1607 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Implementing Statistical Tools in R</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Ayush Patel" />
+    <meta name="date" content="2021-05-05" />
+    <script src="libs/header-attrs/header-attrs.js"></script>
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <link href="libs/panelset/panelset.css" rel="stylesheet" />
+    <script src="libs/panelset/panelset.js"></script>
+    <script src="libs/kePrint/kePrint.js"></script>
+    <link href="libs/lightable/lightable.css" rel="stylesheet" />
+    <link rel="stylesheet" href="theme.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+
+
+
+
+
+layout: true
+---
+
+class: inverse, center, middle
+
+background-image: url(figs/title_backdrop.jpg)
+background-size: cover
+
+
+# Implementing Statistical Tools in R
+
+
+### Lecture 5
+
+.large[Ayush Patel]
+&lt;br&gt;
+Part of the CSD workshop on research methodology&lt;br&gt;
+2021-05-05
+&lt;br&gt;&lt;br&gt;
+
+---
+name: Introduction
+
+class: left,middle
+
+
+## Find me 
+
+[__@ayushbipinpatel__](https://twitter.com/ayushbipinpatel) &lt;img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/Pg0KPCEtLSBHZW5lcmF0b3I6IEFkb2JlIElsbHVzdHJhdG9yIDE5LjAuMCwgU1ZHIEV4cG9ydCBQbHVnLUluIC4gU1ZHIFZlcnNpb246IDYuMDAgQnVpbGQgMCkgIC0tPg0KPHN2ZyB2ZXJzaW9uPSIxLjEiIGlkPSJDYXBhXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4Ig0KCSB2aWV3Qm94PSIwIDAgNTEyIDUxMiIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAwIDAgNTEyIDUxMjsiIHhtbDpzcGFjZT0icHJlc2VydmUiPg0KPGc+DQoJPGc+DQoJCTxwYXRoIGQ9Ik01MTIsOTcuMjQ4Yy0xOS4wNCw4LjM1Mi0zOS4zMjgsMTMuODg4LTYwLjQ4LDE2LjU3NmMyMS43Ni0xMi45OTIsMzguMzY4LTMzLjQwOCw0Ni4xNzYtNTguMDE2DQoJCQljLTIwLjI4OCwxMi4wOTYtNDIuNjg4LDIwLjY0LTY2LjU2LDI1LjQwOEM0MTEuODcyLDYwLjcwNCwzODQuNDE2LDQ4LDM1NC40NjQsNDhjLTU4LjExMiwwLTEwNC44OTYsNDcuMTY4LTEwNC44OTYsMTA0Ljk5Mg0KCQkJYzAsOC4zMiwwLjcwNCwxNi4zMiwyLjQzMiwyMy45MzZjLTg3LjI2NC00LjI1Ni0xNjQuNDgtNDYuMDgtMjE2LjM1Mi0xMDkuNzkyYy05LjA1NiwxNS43MTItMTQuMzY4LDMzLjY5Ni0xNC4zNjgsNTMuMDU2DQoJCQljMCwzNi4zNTIsMTguNzIsNjguNTc2LDQ2LjYyNCw4Ny4yMzJjLTE2Ljg2NC0wLjMyLTMzLjQwOC01LjIxNi00Ny40MjQtMTIuOTI4YzAsMC4zMiwwLDAuNzM2LDAsMS4xNTINCgkJCWMwLDUxLjAwOCwzNi4zODQsOTMuMzc2LDg0LjA5NiwxMDMuMTM2Yy04LjU0NCwyLjMzNi0xNy44NTYsMy40NTYtMjcuNTIsMy40NTZjLTYuNzIsMC0xMy41MDQtMC4zODQtMTkuODcyLTEuNzkyDQoJCQljMTMuNiw0MS41NjgsNTIuMTkyLDcyLjEyOCw5OC4wOCw3My4xMmMtMzUuNzEyLDI3LjkzNi04MS4wNTYsNDQuNzY4LTEzMC4xNDQsNDQuNzY4Yy04LjYwOCwwLTE2Ljg2NC0wLjM4NC0yNS4xMi0xLjQ0DQoJCQlDNDYuNDk2LDQ0Ni44OCwxMDEuNiw0NjQsMTYxLjAyNCw0NjRjMTkzLjE1MiwwLDI5OC43NTItMTYwLDI5OC43NTItMjk4LjY4OGMwLTQuNjQtMC4xNi05LjEyLTAuMzg0LTEzLjU2OA0KCQkJQzQ4MC4yMjQsMTM2Ljk2LDQ5Ny43MjgsMTE4LjQ5Niw1MTIsOTcuMjQ4eiIvPg0KCTwvZz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjwvc3ZnPg0K" width=5%&gt;   
+  
+[__@AyushBipinPatel__](https://github.com/AyushBipinPatel) &lt;img src="data:image/svg+xml;base64,PHN2ZyBlbmFibGUtYmFja2dyb3VuZD0ibmV3IDAgMCAyNCAyNCIgaGVpZ2h0PSI1MTIiIHZpZXdCb3g9IjAgMCAyNCAyNCIgd2lkdGg9IjUxMiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJtMTIgLjVjLTYuNjMgMC0xMiA1LjI4LTEyIDExLjc5MiAwIDUuMjExIDMuNDM4IDkuNjMgOC4yMDUgMTEuMTg4LjYuMTExLjgyLS4yNTQuODItLjU2NyAwLS4yOC0uMDEtMS4wMjItLjAxNS0yLjAwNS0zLjMzOC43MTEtNC4wNDItMS41ODItNC4wNDItMS41ODItLjU0Ni0xLjM2MS0xLjMzNS0xLjcyNS0xLjMzNS0xLjcyNS0xLjA4Ny0uNzMxLjA4NC0uNzE2LjA4NC0uNzE2IDEuMjA1LjA4MiAxLjgzOCAxLjIxNSAxLjgzOCAxLjIxNSAxLjA3IDEuODAzIDIuODA5IDEuMjgyIDMuNDk1Ljk4MS4xMDgtLjc2My40MTctMS4yODIuNzYtMS41NzctMi42NjUtLjI5NS01LjQ2Ni0xLjMwOS01LjQ2Ni01LjgyNyAwLTEuMjg3LjQ2NS0yLjMzOSAxLjIzNS0zLjE2NC0uMTM1LS4yOTgtLjU0LTEuNDk3LjEwNS0zLjEyMSAwIDAgMS4wMDUtLjMxNiAzLjMgMS4yMDkuOTYtLjI2MiAxLjk4LS4zOTIgMy0uMzk4IDEuMDIuMDA2IDIuMDQuMTM2IDMgLjM5OCAyLjI4LTEuNTI1IDMuMjg1LTEuMjA5IDMuMjg1LTEuMjA5LjY0NSAxLjYyNC4yNCAyLjgyMy4xMiAzLjEyMS43NjUuODI1IDEuMjMgMS44NzcgMS4yMyAzLjE2NCAwIDQuNTMtMi44MDUgNS41MjctNS40NzUgNS44MTcuNDIuMzU0LjgxIDEuMDc3LjgxIDIuMTgyIDAgMS41NzgtLjAxNSAyLjg0Ni0uMDE1IDMuMjI5IDAgLjMwOS4yMS42NzguODI1LjU2IDQuODAxLTEuNTQ4IDguMjM2LTUuOTcgOC4yMzYtMTEuMTczIDAtNi41MTItNS4zNzMtMTEuNzkyLTEyLTExLjc5MnoiIGZpbGw9IiMyMTIxMjEiLz48L3N2Zz4=" width=5%&gt;
+  
+  
+[__ayushpatel.netlify.app__](https://ayushpatel.netlify.app/) &lt;img src="data:image/svg+xml;base64,PHN2ZyBpZD0iTGF5ZXJfMSIgZW5hYmxlLWJhY2tncm91bmQ9Im5ldyAwIDAgNTEyLjQxOCA1MTIuNDE4IiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDUxMi40MTggNTEyLjQxOCIgd2lkdGg9IjUxMiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJtNDM3LjMzNSA3NS4wODJjLTEwMC4xLTEwMC4xMDItMjYyLjEzNi0xMDAuMTE4LTM2Mi4yNTIgMC0xMDAuMTAzIDEwMC4xMDItMTAwLjExOCAyNjIuMTM2IDAgMzYyLjI1MyAxMDAuMSAxMDAuMTAyIDI2Mi4xMzYgMTAwLjExNyAzNjIuMjUyIDAgMTAwLjEwMy0xMDAuMTAyIDEwMC4xMTctMjYyLjEzNiAwLTM2Mi4yNTN6bS0xMC43MDYgMzI1LjczOWMtMTEuOTY4LTEwLjcwMi0yNC43Ny0yMC4xNzMtMzguMjY0LTI4LjMzNSA4LjkxOS0zMC44MDkgMTQuMjAzLTY0LjcxMiAxNS40NTItOTkuOTU0aDc1LjMwOWMtMy40MDUgNDcuNTAzLTIxLjY1NyA5Mi4wNjQtNTIuNDk3IDEyOC4yODl6bS0zOTMuMzM4LTEyOC4yODloNzUuMzA5YzEuMjQ5IDM1LjI0MiA2LjUzMyA2OS4xNDUgMTUuNDUyIDk5Ljk1NC0xMy40OTQgOC4xNjItMjYuMjk2IDE3LjYzMy0zOC4yNjQgMjguMzM1LTMwLjg0LTM2LjIyNS00OS4wOTEtODAuNzg2LTUyLjQ5Ny0xMjguMjg5em01Mi40OTgtMTYwLjkzNmMxMS45NjggMTAuNzAyIDI0Ljc3IDIwLjE3MyAzOC4yNjQgMjguMzM1LTguOTE5IDMwLjgwOS0xNC4yMDMgNjQuNzEyLTE1LjQ1MiA5OS45NTRoLTc1LjMxYzMuNDA2LTQ3LjUwMiAyMS42NTctOTIuMDYzIDUyLjQ5OC0xMjguMjg5em0xNTQuMDk3IDMxLjcwOWMtMjYuNjIyLTEuOTA0LTUyLjI5MS04LjQ2MS03Ni4wODgtMTkuMjc4IDEzLjg0LTM1LjYzOSAzOS4zNTQtNzguMzg0IDc2LjA4OC04OC45Nzd6bTAgMzIuNzA4djYzLjg3M2gtOTguNjI1YzEuMTMtMjkuODEyIDUuMzU0LTU4LjQzOSAxMi4zNzktODQuNjMyIDI3LjA0MyAxMS44MjIgNTYuMTI3IDE4Ljg4MiA4Ni4yNDYgMjAuNzU5em0wIDk2LjUxOXY2My44NzNjLTMwLjExOSAxLjg3Ny01OS4yMDMgOC45MzctODYuMjQ2IDIwLjc1OS03LjAyNS0yNi4xOTMtMTEuMjQ5LTU0LjgyLTEyLjM3OS04NC42MzJ6bTAgOTYuNTgxdjEwOC4yNTRjLTM2LjczMi0xMC41OTMtNjIuMjQ2LTUzLjMzMy03Ni4wODgtODguOTc2IDIzLjc5Ny0xMC44MTcgNDkuNDY2LTE3LjM3NCA3Ni4wODgtMTkuMjc4em0zMi42NDYgMGMyNi42MjIgMS45MDQgNTIuMjkxIDguNDYxIDc2LjA4OCAxOS4yNzgtMTMuODQxIDM1LjY0LTM5LjM1NCA3OC4zODMtNzYuMDg4IDg4Ljk3NnptMC0zMi43MDh2LTYzLjg3M2g5OC42MjVjLTEuMTMgMjkuODEyLTUuMzU0IDU4LjQzOS0xMi4zNzkgODQuNjMyLTI3LjA0My0xMS44MjItNTYuMTI3LTE4Ljg4Mi04Ni4yNDYtMjAuNzU5em0wLTk2LjUxOXYtNjMuODczYzMwLjExOS0xLjg3NyA1OS4yMDMtOC45MzcgODYuMjQ2LTIwLjc1OSA3LjAyNSAyNi4xOTMgMTEuMjQ5IDU0LjgyIDEyLjM3OSA4NC42MzJ6bTAtOTYuNTgxdi0xMDguMjU0YzM2LjczNCAxMC41OTMgNjIuMjQ4IDUzLjMzOCA3Ni4wODggODguOTc3LTIzLjc5NyAxMC44MTYtNDkuNDY2IDE3LjM3My03Ni4wODggMTkuMjc3em03My4zMi05MS45NTdjMjAuODk1IDkuMTUgNDAuMzg5IDIxLjU1NyA1Ny44NjQgMzYuOTUxLTguMzE4IDcuMzM0LTE3LjA5NSAxMy45ODQtMjYuMjYgMTkuOTMxLTguMTM5LTIwLjE1Mi0xOC41MzYtMzkuNzM2LTMxLjYwNC01Ni44ODJ6bS0yMTAuODkxIDU2Ljg4MmMtOS4xNjUtNS45NDctMTcuOTQxLTEyLjU5Ny0yNi4yNi0xOS45MzEgMTcuNDc1LTE1LjM5NCAzNi45NjktMjcuODAxIDU3Ljg2NC0zNi45NTEtMTMuMDY4IDE3LjE0OC0yMy40NjUgMzYuNzMyLTMxLjYwNCA1Ni44ODJ6bS4wMDEgMjk1Ljk1OGM4LjEzOCAyMC4xNTEgMTguNTM3IDM5LjczNiAzMS42MDQgNTYuODgyLTIwLjg5NS05LjE1LTQwLjM4OS0yMS41NTctNTcuODY0LTM2Ljk1MSA4LjMxOC03LjMzNCAxNy4wOTUtMTMuOTg0IDI2LjI2LTE5LjkzMXptMjQyLjQ5NCAwYzkuMTY1IDUuOTQ3IDE3Ljk0MiAxMi41OTcgMjYuMjYgMTkuOTMtMTcuNDc1IDE1LjM5NC0zNi45NjkgMjcuODAxLTU3Ljg2NCAzNi45NTEgMTMuMDY3LTE3LjE0NCAyMy40NjUtMzYuNzI5IDMxLjYwNC01Ni44ODF6bTI2LjM2Mi0xNjQuMzAyYy0xLjI0OS0zNS4yNDItNi41MzMtNjkuMTQ2LTE1LjQ1Mi05OS45NTQgMTMuNDk0LTguMTYyIDI2LjI5NS0xNy42MzMgMzguMjY0LTI4LjMzNSAzMC44NCAzNi4yMjUgNDkuMDkxIDgwLjc4NiA1Mi40OTcgMTI4LjI4OXoiLz48L3N2Zz4=" width=5%&gt;    
+  
+  
+[__ayush.ap58@gmail.com__](ayush.ap58@gmail.com)&lt;img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/Pg0KPCEtLSBHZW5lcmF0b3I6IEFkb2JlIElsbHVzdHJhdG9yIDE5LjAuMCwgU1ZHIEV4cG9ydCBQbHVnLUluIC4gU1ZHIFZlcnNpb246IDYuMDAgQnVpbGQgMCkgIC0tPg0KPHN2ZyB2ZXJzaW9uPSIxLjEiIGlkPSJDYXBhXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4Ig0KCSB2aWV3Qm94PSIwIDAgNTExLjk3NCA1MTEuOTc0IiBzdHlsZT0iZW5hYmxlLWJhY2tncm91bmQ6bmV3IDAgMCA1MTEuOTc0IDUxMS45NzQ7IiB4bWw6c3BhY2U9InByZXNlcnZlIj4NCjxnPg0KCTxnPg0KCQk8Zz4NCgkJCTxwYXRoIGQ9Ik01MTEuODcyLDE5NS43MjVjLTAuMDUzLTAuNTg4LTAuMTctMS4xNjktMC4zNS0xLjczMmMtMC4xMTctMC41MDMtMC4yOC0wLjk5NC0wLjQ4Ni0xLjQ2OA0KCQkJCWMtMC4yMzktMC40NjMtMC41MjUtMC45MDEtMC44NTMtMS4zMDZjLTAuMzI5LTAuNDgxLTAuNzEtMC45MjQtMS4xMzUtMS4zMjNjLTAuMTM3LTAuMTE5LTAuMTk2LTAuMjgyLTAuMzQxLTAuNDAxDQoJCQkJbC04Mi4wNjUtNjMuNzM1VjU5LjcwNGMwLTE0LjEzOC0xMS40NjItMjUuNi0yNS42LTI1LjZoLTkyLjQ3NkwyNzEuNTM5LDUuMzU1Yy05LjE0Ny03LjEzNC0yMS45NzQtNy4xMzQtMzEuMTIxLDANCgkJCQlsLTM3LjAzNSwyOC43NDloLTkyLjQ3NmMtMTQuMTM4LDAtMjUuNiwxMS40NjEtMjUuNiwyNS42djY2LjA1N0wzLjI2OCwxODkuNDk2Yy0wLjE0NSwwLjEyLTAuMjA1LDAuMjgyLTAuMzQxLDAuNDAxDQoJCQkJYy0wLjQyNSwwLjM5OC0wLjgwNiwwLjg0Mi0xLjEzNSwxLjMyM2MtMC4zMjgsMC40MDUtMC42MTQsMC44NDItMC44NTMsMS4zMDZjLTAuMjA3LDAuNDczLTAuMzY5LDAuOTY1LTAuNDg2LDEuNDY4DQoJCQkJYy0wLjE3OCwwLjU1NS0wLjI5NSwxLjEyNy0wLjM1LDEuNzA3YzAsMC4xNzktMC4xMDIsMC4zMzMtMC4xMDIsMC41MTJWNDg2LjM3YzAuMDEyLDUuNDI4LDEuNzY4LDEwLjcwOCw1LjAwOSwxNS4wNjENCgkJCQljMC4wNTEsMC4wNzcsMC4wNiwwLjE3MSwwLjExOSwwLjIzOWMwLjA2LDAuMDY4LDAuMTg4LDAuMTQ1LDAuMjczLDAuMjM5YzQuNzk0LDYuMzA4LDEyLjI1LDEwLjAyNywyMC4xNzMsMTAuMDYxaDQ2MC44DQoJCQkJYzcuOTU0LTAuMDI0LDE1LjQ0MS0zLjc2MSwyMC4yNDEtMTAuMTAzYzAuMDY4LTAuMDg1LDAuMTcxLTAuMTExLDAuMjMtMC4xOTZjMC4wNi0wLjA4NSwwLjA2OC0wLjE2MiwwLjEyLTAuMjM5DQoJCQkJYzMuMjQxLTQuMzU0LDQuOTk3LTkuNjM0LDUuMDA5LTE1LjA2MVYxOTYuMjM3QzUxMS45NzQsMTk2LjA1OCw1MTEuODgxLDE5NS45MDQsNTExLjg3MiwxOTUuNzI1eiBNMjUwLjg1NCwxOC44Mg0KCQkJCWMyLjk4LTIuMzY4LDcuMi0yLjM2OCwxMC4xOCwwbDE5LjY4NiwxNS4yODNoLTQ5LjQ5M0wyNTAuODU0LDE4LjgyeiBNMjcuNzI1LDQ5NC45MDRsMjIzLjEzLTE3My4zMjENCgkJCQljMi45ODItMi4zNjQsNy4xOTktMi4zNjQsMTAuMTgsMGwyMjMuMTg5LDE3My4zMjFIMjcuNzI1eiBNNDk0LjkwOCw0ODEuNkwyNzEuNTM5LDMwOC4xMTdjLTkuMTQ5LTcuMTI4LTIxLjk3Mi03LjEyOC0zMS4xMjEsMA0KCQkJCUwxNy4wNDEsNDgxLjZWMjA5LjIzM0wxNTYuODc3LDMxNy44MmMzLjcyNiwyLjg4OSw5LjA4OCwyLjIxMSwxMS45NzctMS41MTVjMi44ODktMy43MjYsMi4yMTEtOS4wODgtMS41MTUtMTEuOTc3DQoJCQkJTDI1LjI3NiwxOTQuMDE4bDYwLjAzMi00Ni42NTJ2NjUuOTM3YzAsNC43MTMsMy44MjEsOC41MzMsOC41MzMsOC41MzNjNC43MTMsMCw4LjUzMy0zLjgyMSw4LjUzMy04LjUzM3YtMTUzLjYNCgkJCQljMC00LjcxMywzLjgyLTguNTMzLDguNTMzLTguNTMzaDI5MC4xMzNjNC43MTMsMCw4LjUzMywzLjgyLDguNTMzLDguNTMzdjE1My42YzAsNC43MTMsMy44Miw4LjUzMyw4LjUzMyw4LjUzMw0KCQkJCXM4LjUzMy0zLjgyMSw4LjUzMy04LjUzM3YtNjUuOTM3bDYwLjAzMiw0Ni42NTJsLTE0Mi4zMSwxMTAuNTA3Yy0yLjQ0OCwxLjg1NS0zLjcxMSw0Ljg4My0zLjMwNSw3LjkyOHMyLjQxNyw1LjYzNyw1LjI2Niw2Ljc4Ng0KCQkJCWMyLjg0OSwxLjE0OSw2LjA5NiwwLjY3OSw4LjUwMS0xLjIzMmwxNDAuMDgzLTEwOC43NzRWNDgxLjZ6Ii8+DQoJCQk8cGF0aCBkPSJNMzU4LjM3NCwyMDQuNzd2LTM0LjEzM2MwLTU2LjU1NC00NS44NDYtMTAyLjQtMTAyLjQtMTAyLjRjLTU2LjU1NCwwLTEwMi40LDQ1Ljg0Ni0xMDIuNCwxMDIuNA0KCQkJCXM0NS44NDYsMTAyLjQsMTAyLjQsMTAyLjRjNC43MTMsMCw4LjUzMy0zLjgyLDguNTMzLTguNTMzcy0zLjgyLTguNTMzLTguNTMzLTguNTMzYy00Ny4xMjgsMC04NS4zMzMtMzguMjA1LTg1LjMzMy04NS4zMzMNCgkJCQlzMzguMjA1LTg1LjMzMyw4NS4zMzMtODUuMzMzczg1LjMzMywzOC4yMDUsODUuMzMzLDg1LjMzM3YzNC4xMzNjMCw5LjQyNi03LjY0MSwxNy4wNjctMTcuMDY3LDE3LjA2Nw0KCQkJCXMtMTcuMDY3LTcuNjQxLTE3LjA2Ny0xNy4wNjd2LTM0LjEzM2MwLTQuNzEzLTMuODItOC41MzMtOC41MzMtOC41MzNzLTguNTMzLDMuODItOC41MzMsOC41MzMNCgkJCQljMCwxOC44NTEtMTUuMjgyLDM0LjEzMy0zNC4xMzMsMzQuMTMzYy0xOC44NTEsMC0zNC4xMzMtMTUuMjgyLTM0LjEzMy0zNC4xMzNzMTUuMjgyLTM0LjEzMywzNC4xMzMtMzQuMTMzDQoJCQkJYzQuNzEzLDAsOC41MzMtMy44Miw4LjUzMy04LjUzM3MtMy44Mi04LjUzMy04LjUzMy04LjUzM2MtMjIuOTE1LTAuMDUxLTQzLjA3NCwxNS4xMy00OS4zNTQsMzcuMTY4DQoJCQkJYy02LjI4LDIyLjAzOCwyLjg0Nyw0NS41NjUsMjIuMzQ3LDU3LjYwMWMxOS41LDEyLjAzNiw0NC42MjIsOS42NSw2MS41MDctNS44NDNjMS44NTgsMTguMDQ2LDE3LjU0MywzMS40NjQsMzUuNjU5LDMwLjUwNQ0KCQkJCUMzNDQuMjUsMjM3LjkxLDM1OC40MzEsMjIyLjkxMiwzNTguMzc0LDIwNC43N3oiLz4NCgkJPC9nPg0KCTwvZz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjwvc3ZnPg0K" width=5%&gt;  
+
+---
+
+class: left, middle
+
+# About You
+
+Pre-requisite for this lecture.
+&lt;br&gt;
+&lt;br&gt;
+&lt;br&gt;
+--
+You know __What is a Hypotheses and the difference between a research hypotheses and a statistical hypotheses__
+&lt;br&gt;
+&lt;br&gt;
+&lt;br&gt;
+--
+You know __t-tests conceptually__
+&lt;br&gt;
+&lt;br&gt;
+&lt;br&gt;
+--
+You know __Chi square-tests conceptually__
+&lt;br&gt;
+&lt;br&gt;
+&lt;br&gt;
+--
+You know __ANOVA conceptually__
+&lt;br&gt;
+&lt;br&gt;
+&lt;br&gt;
+--
+You know __Linear regression conceptually__
+&lt;br&gt;
+&lt;br&gt;
+&lt;br&gt;
+---
+class: center, middle
+
+# Acknowledgements
+
+### Learning Statistics with R by Dr. Danielle Navarro
+
+This lecture is stolen from her book.
+---
+
+class: left,top
+
+# The Chi Square test
+
+.yscroll[
+.panelset[
+.panel[.panel-name[Data]
+&lt;div style="border: 1px solid #ddd; padding: 0px; overflow-y: scroll; height:400px; overflow-x: scroll; width:100%; "&gt;&lt;table class="table" style="margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;"&gt; id &lt;/th&gt;
+   &lt;th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;"&gt; choice_1 &lt;/th&gt;
+   &lt;th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;"&gt; choice_2 &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj1 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj2 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj3 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj4 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj5 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj6 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj7 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj8 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj9 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj10 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj11 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj12 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj13 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj14 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj15 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj16 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj17 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj18 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj19 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj20 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj21 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj22 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj23 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj24 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj25 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj26 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj27 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj28 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj29 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj30 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj31 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj32 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj33 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj34 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj35 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj36 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj37 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj38 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj39 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj40 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj41 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj42 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj43 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj44 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj45 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj46 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj47 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj48 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj49 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj50 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj51 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj52 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj53 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj54 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj55 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj56 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj57 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj58 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj59 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj60 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj61 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj62 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj63 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj64 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj65 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj66 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj67 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj68 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj69 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj70 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj71 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj72 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj73 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj74 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj75 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj76 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj77 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj78 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj79 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj80 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj81 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj82 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj83 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj84 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj85 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj86 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj87 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj88 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj89 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj90 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj91 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj92 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj93 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj94 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj95 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj96 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj97 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj98 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj99 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj100 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj101 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj102 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj103 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj104 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj105 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj106 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj107 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj108 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj109 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj110 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj111 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj112 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj113 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj114 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj115 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj116 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj117 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj118 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj119 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj120 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj121 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj122 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj123 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj124 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj125 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj126 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj127 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj128 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj129 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj130 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj131 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj132 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj133 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj134 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj135 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj136 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj137 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj138 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj139 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj140 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj141 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj142 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj143 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj144 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj145 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj146 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj147 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj148 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj149 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj150 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj151 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj152 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj153 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj154 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj155 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj156 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj157 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj158 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj159 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj160 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj161 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj162 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj163 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj164 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj165 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj166 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj167 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj168 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj169 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj170 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj171 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj172 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj173 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj174 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj175 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj176 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj177 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj178 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj179 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj180 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj181 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj182 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj183 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj184 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj185 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj186 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj187 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj188 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj189 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj190 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj191 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj192 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj193 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj194 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj195 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; diamonds &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj196 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj197 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj198 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; clubs &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj199 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; spades &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; subj200 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; hearts &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;&lt;/div&gt;
+
+]&lt;!-----panel 1-----&gt;
+.panel[.panel-name[Choice1]
+
+```
+## 
+##    clubs diamonds   hearts   spades 
+##       35       51       64       50
+```
+
+]&lt;!----panel 2-----&gt;
+.panel[.panel-name[Null H]
+H0: All four suits are chosen with equal probability&lt;br&gt;
+H0: P = ( .25, .25, .25, .25)
+]
+.panel[.panel-name[Alternative H1]
+H1: At least one of the suit-choice probabilities isn’t .25&lt;br&gt;
+H1: P != ( .25, .25, .25, .25)
+
+]
+.panel[.panel-name[Observed and Expected]
+
+
+```r
+probabilities &lt;- c(clubs = .25, diamonds = .25, hearts = .25, spades = .25)
+N &lt;- 200
+expected &lt;- N * probabilities
+observed - expected
+```
+
+```
+## 
+##    clubs diamonds   hearts   spades 
+##      -15        1       14        0
+```
+
+```r
+(observed - expected)^2
+```
+
+```
+## 
+##    clubs diamonds   hearts   spades 
+##      225        1      196        0
+```
+
+```r
+(observed - expected)^2/expected
+```
+
+```
+## 
+##    clubs diamonds   hearts   spades 
+##     4.50     0.02     3.92     0.00
+```
+
+```r
+sum((observed - expected)^2/expected)
+```
+
+```
+## [1] 8.44
+```
+]
+.panel[.panel-name[Critical Value]
+
+```r
+qchisq(p = 0.95,df = 3) # df = k-1
+```
+
+```
+## [1] 7.814728
+```
+
+```r
+## exact p - value
+pchisq(q = 8.44,df = 3, lower.tail = FALSE)
+```
+
+```
+## [1] 0.03774185
+```
+
+]
+.panel[.panel-name[Silver bullet]
+
+```r
+goodnessOfFitTest(cards$choice_1) # the function is from the lsr package
+```
+
+```
+## 
+##      Chi-square test against specified probabilities
+## 
+## Data variable:   cards$choice_1 
+## 
+## Hypotheses: 
+##    null:        true probabilities are as specified
+##    alternative: true probabilities differ from those specified
+## 
+## Descriptives: 
+##          observed freq. expected freq. specified prob.
+## clubs                35             50            0.25
+## diamonds             51             50            0.25
+## hearts               64             50            0.25
+## spades               50             50            0.25
+## 
+## Test results: 
+##    X-squared statistic:  8.44 
+##    degrees of freedom:  3 
+##    p-value:  0.038
+```
+
+```r
+# one could also us the funciton chisq.test()
+```
+
+]
+]
+]
+ 
+---
+class: left, top
+
+# The t-test
+
+.yscroll[
+.panelset[
+.panel[.panel-name[Data]
+
+```r
+grades
+```
+
+```
+##  [1] 50 60 60 64 66 66 67 69 70 74 76 76 77 79 79 79 81 82 82 89
+```
+
+
+
+]
+.panel[.panel-name[One Sample]
+
+```r
+oneSampleTTest(x = grades, mu = 67.5)
+```
+
+```
+## 
+##    One sample t-test 
+## 
+## Data variable:   grades 
+## 
+## Descriptive statistics: 
+##             grades
+##    mean     72.300
+##    std dev.  9.521
+## 
+## Hypotheses: 
+##    null:        population mean equals 67.5 
+##    alternative: population mean not equal to 67.5 
+## 
+## Test results: 
+##    t-statistic:  2.255 
+##    degrees of freedom:  19 
+##    p-value:  0.036 
+## 
+## Other information: 
+##    two-sided 95% confidence interval:  [67.844, 76.756] 
+##    estimated effect size (Cohen's d):  0.504
+```
+
+]
+.panel[.panel-name[Independent Samples test - Data]
+&lt;div style="border: 1px solid #ddd; padding: 0px; overflow-y: scroll; height:400px; overflow-x: scroll; width:100%; "&gt;&lt;table class="table" style="margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;"&gt; grade &lt;/th&gt;
+   &lt;th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;"&gt; tutor &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 65 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Anastasia &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 72 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Bernadette &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 66 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Bernadette &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 74 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Anastasia &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 73 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Anastasia &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 71 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Bernadette &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 66 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Bernadette &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 76 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Bernadette &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 69 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Bernadette &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 79 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Bernadette &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 73 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Bernadette &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 62 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Bernadette &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 83 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Anastasia &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 76 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Anastasia &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 69 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Bernadette &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 68 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Bernadette &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 65 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Anastasia &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 86 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Anastasia &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 60 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Bernadette &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 70 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Anastasia &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 80 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Anastasia &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 73 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Bernadette &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 68 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Bernadette &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 55 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Anastasia &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 67 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Bernadette &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 78 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Anastasia &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 78 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Anastasia &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 90 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Anastasia &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 77 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Anastasia &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 74 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Bernadette &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 56 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Bernadette &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 68 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Anastasia &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 74 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Bernadette &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;&lt;/div&gt;
+
+]
+.panel[.panel-name[Independent Samples test - Code]
+
+```r
+independentSamplesTTest(
+  formula = grade ~ tutor,
+  data = harpo,
+  var.equal = TRUE
+)
+```
+
+```
+## 
+##    Student's independent samples t-test 
+## 
+## Outcome variable:   grade 
+## Grouping variable:  tutor 
+## 
+## Descriptive statistics: 
+##             Anastasia Bernadette
+##    mean        74.533     69.056
+##    std dev.     8.999      5.775
+## 
+## Hypotheses: 
+##    null:        population means equal for both groups
+##    alternative: different population means in each group
+## 
+## Test results: 
+##    t-statistic:  2.115 
+##    degrees of freedom:  31 
+##    p-value:  0.043 
+## 
+## Other information: 
+##    two-sided 95% confidence interval:  [0.197, 10.759] 
+##    estimated effect size (Cohen's d):  0.74
+```
+
+]
+]
+]
+---
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"ratio": "16:9",
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
