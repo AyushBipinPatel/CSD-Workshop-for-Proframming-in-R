@@ -21,3 +21,6 @@ Hi. I am Ayush. I an economist interested in rights based laws, public policy an
 
 If you want to reach out to me feel free to email me at _ayush.ap58@gmail.com_
 
+## A note about the Lecture 5
+
+The lecture 5 is stolen from the wonderful [Learning Statistics with R](https://learningstatisticswithr.com/) by [Danielle Navarro](https://twitter.com/djnavarro). The lecture reproduces parts of code from the book to demonstrate how to implement some statistical techniques in R for an audience who already has technical understanding of the topic.

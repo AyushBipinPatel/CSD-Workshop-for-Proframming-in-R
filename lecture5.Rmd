@@ -38,7 +38,9 @@ xaringanExtra::use_panelset()
 ```{r include=FALSE}
 load("randomness.Rdata")
 load("zeppo.Rdata")
-load(file = "harpo.Rdata")
+load("harpo.Rdata")
+load("clinicaltrial.Rdata")
+load("parenthood.Rdata")
 ```
 
 
@@ -234,4 +236,84 @@ independentSamplesTTest(
 ]
 ]
 ]
+---
+class: left, top
+
+# The ANOVA* test
+
+.yscroll[
+.panelset[
+.panel[.panel-name[DATA]
+```{r echo=FALSE}
+clin.trial %>%
+knitr::kable()%>%
+kableExtra::kable_styling()%>%
+scroll_box(width = "100%", height = "400px")
+
+```
+
+]
+.panel[.panel-name[Drug and mood gain]
+```{r echo=FALSE}
+clin.trial %>% 
+  group_by(drug) %>% 
+  summarise(
+    mean.mood.gain = mean(mood.gain, na.rm = T)
+  )
+```
+
+]
+.panel[.panel-name[Code]
+```{r}
+aov(formula = mood.gain ~ drug, data = clin.trial) -> anova_test
+
+anova_test
+```
+
+```{r}
+summary(anova_test)
+```
+
+]
+]
+]
+---
+
+class: left, top
+
+# Linear Regresison
+
+.yscroll[
+.panelset[
+.panel[.panel-name[DATA]
+```{r echo=FALSE}
+parenthood %>%
+knitr::kable()%>%
+kableExtra::kable_styling()%>%
+scroll_box(width = "100%", height = "400px")
+
+```
+
+]
+.panel[.panel-name[Code]
+```{r}
+model1 <- lm(dan.grump ~ dan.sleep,
+             data = parenthood)
+
+model1
+```
+
+```{r}
+summary(model1)
+```
+
+]
+]
+]
+---
+
+<br><br>
+.big[Feedback is welcome at: _ayush.ap58@gmail.com_]
+
+.tiny[Photo by David Sun from Pexels]
 ---
