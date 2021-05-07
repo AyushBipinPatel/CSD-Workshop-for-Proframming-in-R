@@ -35,6 +35,9 @@ library(tidytext)
 xaringanExtra::use_panelset()
 ```
 
+```{r include=FALSE}
+bibtex::read.bib("cite.bib") -> file.cite
+```
 
 
 layout: true
@@ -117,6 +120,8 @@ class: left, middle
 Copy the following command in your script and run:
 > install.packages("tidytext")
 <br>
+> install.packages("textdata")
+<br>
 > library(tidytext)
 <br>
 > library(dplyr)
@@ -157,18 +162,6 @@ _A table with one-token-per-row_
 
 ]
 
----
-class: inverse,center, middle
-
-background-image: url(figs/thank-you.jpg)
-background-size: cover
-
-# Thank You
-
-<br><br>
-.big[Feedback is welcome at: _ayush.ap58@gmail.com_]
-
-.tiny[Photo by David Sun from Pexels]
 ---
 class: left, top
 
@@ -361,4 +354,228 @@ speech_tidy %>%
   count(word, sort = T) -> speech_word_freq_without_stop_words
 
 ```
+---
+
+class: center, middle
+
+# .middle[Sentiment Analysis]
+
+
+<iframe src="https://giphy.com/embed/13j9JWOJkjc4dW" width="480" height="250" frameBorder="0" class="giphy-embed" allowFullScreen></iframe><p><a href="https://giphy.com/gifs/bill-guest-adds-13j9JWOJkjc4dW">via GIPHY</a></p>
+
+---
+
+class: left, top
+
+# The Approach
+
+<br>
+<br>
+
+.pull-left[.big[Sentiment content of the whole text]]
+.big[=]
+.pull-right[.big[__Sum of the__ sentiment content of individual words]]
+
+---
+class: left, top
+
+# General Purpose Lexicons from {tidytext}
+
+> get_sentiments()
+
+.yscroll[
+.panelset[
+.panel[.panel-name[AFINN]
+```{r echo=FALSE}
+get_sentiments("afinn") %>%
+knitr::kable()%>%
+kableExtra::kable_styling()%>%
+scroll_box(width = "100%", height = "400px")
+
+```
+
+]
+.panel[.panel-name[bing]
+```{r echo=FALSE}
+get_sentiments("bing") %>%
+knitr::kable()%>%
+kableExtra::kable_styling()%>%
+scroll_box(width = "100%", height = "400px")
+
+```
+
+]
+.panel[.panel-name[nrc]
+
+This NRC Word-Emotion Association Lexicon is by `r RefManageR::Cite(file.cite)``
+
+```{r echo=FALSE}
+get_sentiments("nrc") %>%
+knitr::kable()%>%
+kableExtra::kable_styling()%>%
+scroll_box(width = "100%", height = "400px")
+
+```
+
+]
+]
+]
+---
+class: left, top
+
+## Analyzing Dr Singh's speech on Demonetization 
+The speech was given in Rajaya Sabha on 24 Nov 2016
+
+.yscroll[
+.panelset[
+.panel[.panel-name[Tidy Data - word count]
+```{r include=FALSE}
+speech_mm <- read_csv("speech_mm.csv")
+
+speech_mm %>% 
+  mutate(
+    line_num = row_number()
+  ) %>% 
+  unnest_tokens(output = word,input = text) -> tidy_speech_mm
+```
+Stop words are removed
+```{r echo=FALSE}
+tidy_speech_mm %>%
+  filter(!(word %in% stop_words$word)) %>% 
+  count(word, sort = T) %>% 
+  knitr::kable()%>%
+  kableExtra::kable_styling()%>%
+  scroll_box(width = "100%", height = "400px")
+
+```
+
+```{r echo=FALSE}
+tidy_speech_mm %>%
+  filter(!(word %in% stop_words$word)) %>% 
+  count(word, sort = T) %>% 
+  mutate(
+    word = fct_reorder(word,n)
+  ) %>% 
+  filter(n > 3) %>% 
+  ggplot(aes(word,n))+
+    geom_col(fill = "steelblue", alpha = 0.5)+
+    labs(
+      y = "frequency"
+    )
+```
+
+]
+.panel[.panel-name[Using AFINN]
+```{r}
+tidy_speech_mm %>%
+  filter(!(word %in% stop_words$word)) %>% 
+  inner_join(get_sentiments("afinn"))
+```
+
+```{r}
+tidy_speech_mm %>%
+  filter(!(word %in% stop_words$word)) %>% 
+  inner_join(get_sentiments("afinn")) %>% 
+  pull(value) %>% 
+  sum()
+
+```
+
+One could say the learned, former Prime Minister, is not very happy about demonetization.
+
+```{r}
+tidy_speech_mm %>%
+  filter(!(word %in% stop_words$word)) %>% 
+  inner_join(get_sentiments("afinn")) %>% 
+  filter(value < 0) %>% 
+  arrange(value)%>%
+  knitr::kable()%>%
+  kableExtra::kable_styling()%>%
+  scroll_box(width = "100%", height = "400px")
+  
+```
+
+]
+.panel[.panel-name[Using bing]
+```{r}
+tidy_speech_mm %>%
+  filter(!(word %in% stop_words$word)) %>% 
+  inner_join(get_sentiments("bing"))
+```
+
+```{r}
+tidy_speech_mm %>%
+  filter(!(word %in% stop_words$word)) %>% 
+  inner_join(get_sentiments("bing")) %>% 
+  janitor::tabyl(sentiment)
+  
+```
+
+Notice anything?
+
+```{r}
+tidy_speech_mm %>%
+  filter(!(word %in% stop_words$word)) %>% 
+  inner_join(get_sentiments("bing")) %>% 
+  count(word,sentiment,sort = T)
+```
+
+```{r}
+tidy_speech_mm %>%
+  filter(!(word %in% stop_words$word)) %>% 
+  inner_join(get_sentiments("bing")) %>% 
+  count(word,sentiment,sort = T) %>% 
+  mutate(word = reorder(word, n)) %>%
+  ggplot(aes(n, word, fill = sentiment)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~sentiment, scales = "free_y") +
+  labs(x = "Contribution to sentiment",
+       y = NULL)
+```
+
+]
+.panel[.panel-name[Using nrc]
+```{r}
+tidy_speech_mm %>%
+  filter(!(word %in% stop_words$word)) %>% 
+  inner_join(get_sentiments("nrc")) %>%
+  knitr::kable()%>%
+  kableExtra::kable_styling()%>%
+  scroll_box(width = "100%", height = "400px")
+  
+```
+
+Most recurring sentiment
+
+```{r}
+tidy_speech_mm %>%
+  filter(!(word %in% stop_words$word)) %>% 
+  inner_join(get_sentiments("nrc")) %>% 
+  janitor::tabyl(sentiment) %>% 
+  arrange(desc(n)) %>%
+  knitr::kable()%>%
+  kableExtra::kable_styling()%>%
+  scroll_box(width = "100%", height = "400px")
+  
+
+```
+
+
+]
+]
+]
+
+
+---
+class: inverse,center, middle
+
+background-image: url(figs/thank-you.jpg)
+background-size: cover
+
+# Thank You
+
+<br><br>
+.big[Feedback is welcome at: _ayush.ap58@gmail.com_]
+
+.tiny[Photo by David Sun from Pexels]
 ---
